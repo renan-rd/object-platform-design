@@ -233,8 +233,6 @@
 
     .content-inner {
       width: 100%;
-      max-width: 1312px;
-      margin: 0 auto;
     }
 
     /* ─── PAGE HEADER ─────────────────────────────────── */
@@ -789,6 +787,23 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    @media (min-width: 1313px) {
+      table {
+        table-layout: auto;
+        min-width: 100%;
+      }
+      thead th { min-width: unset; width: auto; }
+      thead th:first-child { width: 44px; }
+      thead th:nth-child(2) { width: 60px; }
+      thead th:last-child  { width: 52px; }
+      th, td { white-space: nowrap; overflow: visible; text-overflow: unset; }
+      .cell-plain.cell-text-main {
+        overflow: visible;
+        text-overflow: unset;
+        white-space: nowrap;
+      }
     }
 
     /* Plain text */
@@ -1895,8 +1910,10 @@
         </div>
       </div>
 
-      <!-- TABLE -->
-      <div class="table-wrapper">
+    </div><!-- /content-inner -->
+
+    <!-- TABLE (fora do content-inner para ocupar toda a largura) -->
+    <div class="table-wrapper">
         <table>
           <thead>
             <tr>
