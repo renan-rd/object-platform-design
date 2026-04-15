@@ -73,6 +73,8 @@
       justify-content: space-between;
       padding: var(--sp-3);
       height: 64px;
+      position: relative;
+      z-index: 9600;
     }
 
     .navbar-logo {
@@ -230,7 +232,9 @@
     }
 
     .content-inner {
+      width: 100%;
       max-width: 1312px;
+      margin: 0 auto;
     }
 
     /* ─── PAGE HEADER ─────────────────────────────────── */
@@ -838,14 +842,12 @@
 
     /* Status dropdown */
     .status-dropdown {
-      position: absolute;
-      top: calc(100% + 4px);
-      left: 0;
+      position: fixed;
       background: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-sm);
       box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      z-index: 100;
+      z-index: 9500;
       min-width: 220px;
       padding: var(--sp-1) 0;
     }
@@ -1148,41 +1150,60 @@
     /* ─── DRAWER AVATAR ────────────────────────────────── */
     .drawer-avatar-field {
       display: flex;
+      align-items: center;
       justify-content: center;
+      gap: 16px;
       padding: 4px 0 16px;
     }
     .drawer-avatar-wrap {
       position: relative;
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      cursor: pointer;
+      width: 80px;
+      height: 80px;
+      border-radius: 999px;
       overflow: hidden;
       flex-shrink: 0;
+      background: #E5E8EA;
     }
     .drawer-avatar-preview {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      border-radius: 999px;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--color-surface-low);
+      background: #E5E8EA;
     }
     .drawer-avatar-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .drawer-avatar-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
+    .drawer-avatar-info {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity .2s;
-      border-radius: 50%;
+      flex-direction: column;
+      gap: 8px;
     }
-    .drawer-avatar-wrap:hover .drawer-avatar-overlay { opacity: 1; }
+    .drawer-avatar-label {
+      color: var(--color-text-high);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 24px;
+    }
+    .drawer-avatar-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px 6px 8px;
+      background: var(--color-primary-surface-low);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--color-primary-text);
+      font-size: 14px;
+      font-family: var(--font);
+      font-weight: 700;
+      line-height: 1.4;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+    .drawer-avatar-btn:hover { background: #8eeeff; }
 
     /* ─── MULTI-FIELD ───────────────────────────────────── */
     .multi-field-row {
@@ -1962,11 +1983,15 @@
 
       <!-- Avatar upload -->
       <div class="drawer-avatar-field">
-        <div class="drawer-avatar-wrap" id="dc-avatar-wrap" title="Alterar foto de perfil">
+        <div class="drawer-avatar-wrap" id="dc-avatar-wrap">
           <div class="drawer-avatar-preview" id="dc-avatar-preview"></div>
-          <div class="drawer-avatar-overlay">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M12 15.2a3.2 3.2 0 100-6.4 3.2 3.2 0 000 6.4zm6.3-9.2h-1.9L14.5 4H9.5L7.6 6H5.7C4.2 6 3 7.2 3 8.7v10.6C3 20.8 4.2 22 5.7 22h12.6c1.5 0 2.7-1.2 2.7-2.7V8.7C21 7.2 19.8 6 18.3 6z"/></svg>
-          </div>
+        </div>
+        <div class="drawer-avatar-info">
+          <span class="drawer-avatar-label">Foto de perfil</span>
+          <button type="button" class="drawer-avatar-btn" id="dc-avatar-btn">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.1 9.56094C15.1961 9.31016 15.25 9.03594 15.25 8.75C15.25 7.50781 14.2422 6.5 13 6.5C12.5383 6.5 12.107 6.64062 11.7508 6.87969C11.1016 5.75469 9.88984 5 8.5 5C6.42812 5 4.75 6.67812 4.75 8.75C4.75 8.81328 4.75234 8.87656 4.75469 8.93984C3.44219 9.40156 2.5 10.6531 2.5 12.125C2.5 13.9883 4.01172 15.5 5.875 15.5H14.5C16.157 15.5 17.5 14.157 17.5 12.5C17.5 11.0492 16.4687 9.8375 15.1 9.56094ZM11.8211 11.0539L11.568 11.307C11.343 11.532 10.9773 11.525 10.7594 11.2953L10 10.4867V13.4375C10 13.7492 9.74922 14 9.4375 14H9.0625C8.75078 14 8.5 13.7492 8.5 13.4375V10.4867L7.74063 11.2953C7.52266 11.5273 7.15703 11.532 6.93203 11.307L6.67891 11.0539C6.45859 10.8336 6.45859 10.4773 6.67891 10.2594L8.85156 8.08672C9.07187 7.86641 9.42812 7.86641 9.64609 8.08672L11.8188 10.2594C12.0391 10.4797 12.0391 10.8359 11.8211 11.0539V11.0539Z" fill="currentColor"/></svg>
+            Selecionar arquivo
+          </button>
         </div>
         <input type="file" id="dc-avatar-input" accept="image/*" style="display:none">
       </div>
@@ -2803,12 +2828,22 @@
       if (activeDropdown) { activeDropdown.remove(); activeDropdown = null; }
     }
 
+    function updateDropdownPosition() {
+      if (!activeDropdown || !activeDropdown._anchor) return;
+      const rect = activeDropdown._anchor.getBoundingClientRect();
+      activeDropdown.style.top  = (rect.bottom + 4) + 'px';
+      activeDropdown.style.left = rect.left + 'px';
+    }
+
+    document.querySelector('.table-wrap')?.addEventListener('scroll', updateDropdownPosition);
+    window.addEventListener('scroll', updateDropdownPosition, true);
+
     document.addEventListener('click', e => {
       const btn = e.target.closest('.status-select');
       if (!btn) { closeDropdown(); return; }
 
       e.stopPropagation();
-      if (activeDropdown && activeDropdown.parentElement === btn) { closeDropdown(); return; }
+      if (activeDropdown && activeDropdown._anchor === btn) { closeDropdown(); return; }
       closeDropdown();
 
       const currentStatus = btn.dataset.status;
@@ -2820,8 +2855,13 @@
           <span>${opt.value}</span>
         </div>`).join('');
 
-      btn.appendChild(dropdown);
+      document.body.appendChild(dropdown);
       activeDropdown = dropdown;
+      activeDropdown._anchor = btn;
+
+      const rect = btn.getBoundingClientRect();
+      dropdown.style.top  = (rect.bottom + 4) + 'px';
+      dropdown.style.left = rect.left + 'px';
 
       dropdown.querySelectorAll('.status-dropdown-item').forEach(item => {
         item.addEventListener('click', async e => {
@@ -2900,20 +2940,23 @@
     const avatarWrap    = document.getElementById('dc-avatar-wrap');
     const avatarPreview = document.getElementById('dc-avatar-preview');
     const avatarInput   = document.getElementById('dc-avatar-input');
+    const avatarBtn     = document.getElementById('dc-avatar-btn');
 
     function renderDrawerAvatar(nome, imageUrl) {
       if (imageUrl) {
         avatarPreview.innerHTML = `<img src="${imageUrl}" alt="${escHtml(nome||'')}">`;
-      } else {
-        const gi = window.__getInitials || (n => (n||'?')[0].toUpperCase());
+      } else if (nome && nome.trim()) {
+        const gi = window.__getInitials || (n => n[0].toUpperCase());
         const gc = window.__getColor    || (() => '#6c63ff');
-        const initials = gi(nome || '');
-        const color    = gc(nome || '');
+        const initials = gi(nome.trim());
+        const color    = gc(nome.trim());
         avatarPreview.innerHTML = `<svg viewBox="0 0 72 72" width="72" height="72"><circle cx="36" cy="36" r="36" fill="${color}"/><text x="36" y="46" text-anchor="middle" font-size="26" fill="#fff" font-weight="700" font-family="DM Sans,sans-serif">${initials}</text></svg>`;
+      } else {
+        avatarPreview.innerHTML = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.125 19H3.875C2.83945 19 2 18.1605 2 17.125V5.875C2 4.83945 2.83945 4 3.875 4H20.125C21.1605 4 22 4.83945 22 5.875V17.125C22 18.1605 21.1605 19 20.125 19ZM6.375 6.1875C5.16688 6.1875 4.1875 7.16688 4.1875 8.375C4.1875 9.58312 5.16688 10.5625 6.375 10.5625C7.58312 10.5625 8.5625 9.58312 8.5625 8.375C8.5625 7.16688 7.58312 6.1875 6.375 6.1875ZM4.5 16.5H19.5V12.125L16.0814 8.70645C15.8984 8.5234 15.6016 8.5234 15.4185 8.70645L10.125 14L7.95645 11.8314C7.7734 11.6484 7.4766 11.6484 7.29352 11.8314L4.5 14.625V16.5Z" fill="#596B7A"/></svg>`;
       }
     }
 
-    avatarWrap.addEventListener('click', () => avatarInput.click());
+    avatarBtn.addEventListener('click', () => avatarInput.click());
 
     avatarInput.addEventListener('change', () => {
       const file = avatarInput.files[0];
