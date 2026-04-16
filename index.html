@@ -390,14 +390,19 @@
     }
 
     .tab[draggable="true"] { cursor: grab; }
-    .tab[draggable="true"]:active { cursor: grabbing; }
+    .tab.tab-dragging-placeholder { opacity: 0; pointer-events: none; }
+    .tab { transition: transform 200ms ease; }
+    .tab.tab-no-transition { transition: none; }
 
-    .tab.drag-over { opacity: 0.5; }
-
-    .tab.dragging {
-      opacity: 0.4;
-      background: var(--color-primary-surface-low);
+    .tab-drag-clone {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.85;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
       border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      background: var(--color-surface);
+      cursor: grabbing;
     }
 
     .tab-content {
@@ -916,7 +921,7 @@
       width: 400px;
       background: var(--color-surface);
       box-shadow: 0 8px 18px rgba(0,34,51,0.16);
-      z-index: 201;
+      z-index: 9700;
       display: flex; flex-direction: column;
       transform: translateX(100%);
       transition: transform 0.25s ease;
@@ -2374,54 +2379,103 @@
 
   // ─── DRAG & DROP ──────────────────────────────────────────
   const tabsBar = document.getElementById('tabs-bar');
-  let dragSrc = null;
 
   function getDraggableTabs() {
     return [...tabsBar.querySelectorAll('.tab[draggable="true"]')];
   }
 
-  tabsBar.addEventListener('dragstart', e => {
-    const tab = e.target.closest('.tab[draggable="true"]');
+  // ─── POINTER-BASED DRAG WITH LIVE REORDER PREVIEW ────────
+  tabsBar.addEventListener('pointerdown', e => {
+    const handle = e.target.closest('.tab-drag-handle');
+    if (!handle) return;
+    const tab = handle.closest('.tab[draggable="true"]');
     if (!tab) return;
-    dragSrc = tab;
-    tab.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-  });
 
-  tabsBar.addEventListener('dragend', e => {
-    const tab = e.target.closest('.tab[draggable="true"]');
-    if (!tab) return;
-    tab.classList.remove('dragging');
-    getDraggableTabs().forEach(t => t.classList.remove('drag-over'));
-    dragSrc = null;
-  });
-
-  tabsBar.addEventListener('dragover', e => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    const tab = e.target.closest('.tab[draggable="true"]');
-    if (!tab || tab === dragSrc) return;
-    getDraggableTabs().forEach(t => t.classList.remove('drag-over'));
-    tab.classList.add('drag-over');
-  });
 
-  tabsBar.addEventListener('drop', e => {
-    e.preventDefault();
-    const target = e.target.closest('.tab[draggable="true"]');
-    if (!target || target === dragSrc || !dragSrc) return;
+    const tabs    = getDraggableTabs();
+    const srcIdx  = tabs.indexOf(tab);
+    const tabRect = tab.getBoundingClientRect();
+    const offsetX = e.clientX - tabRect.left;
+    const offsetY = e.clientY - tabRect.top;
 
-    const tabs = getDraggableTabs();
-    const srcIdx = tabs.indexOf(dragSrc);
-    const tgtIdx = tabs.indexOf(target);
+    // Capturar o pointer para tracking contínuo e suave
+    handle.setPointerCapture(e.pointerId);
 
-    // Insert before or after based on position
-    if (srcIdx < tgtIdx) {
-      target.after(dragSrc);
-    } else {
-      target.before(dragSrc);
+    // Cachear rects ANTES de qualquer transform/animação
+    const cachedRects = tabs.map(t => t.getBoundingClientRect());
+
+    // Clone flutuante
+    const clone = tab.cloneNode(true);
+    clone.classList.add('tab-drag-clone');
+    clone.style.width  = tabRect.width  + 'px';
+    clone.style.height = tabRect.height + 'px';
+    clone.style.left   = tabRect.left   + 'px';
+    clone.style.top    = tabRect.top    + 'px';
+    document.body.appendChild(clone);
+
+    tab.classList.add('tab-dragging-placeholder');
+
+    let insertIdx = srcIdx;
+
+    // Calcula índice de inserção contando quantas tabs (exceto a arrastada)
+    // têm seu centro original à esquerda do cursor
+    function calcInsertIdx(cursorX) {
+      let count = 0;
+      tabs.forEach((t, i) => {
+        if (t === tab) return;
+        const center = cachedRects[i].left + cachedRects[i].width / 2;
+        if (cursorX > center) count++;
+      });
+      return count;
     }
 
-    getDraggableTabs().forEach(t => t.classList.remove('drag-over'));
+    function applyShifts(newIdx) {
+      tabs.forEach((t, i) => {
+        if (t === tab) return;
+        let shift = 0;
+        if (newIdx > srcIdx && i > srcIdx && i <= newIdx) shift = -tabRect.width;
+        if (newIdx < srcIdx && i >= newIdx && i < srcIdx) shift =  tabRect.width;
+        t.style.transform = shift ? `translateX(${shift}px)` : '';
+      });
+    }
+
+    function onMove(e) {
+      clone.style.left = (e.clientX - offsetX) + 'px';
+      clone.style.top  = (e.clientY - offsetY) + 'px';
+
+      const newIdx = calcInsertIdx(e.clientX);
+      if (newIdx !== insertIdx) {
+        insertIdx = newIdx;
+        applyShifts(insertIdx);
+      }
+    }
+
+    function onUp() {
+      handle.releasePointerCapture(e.pointerId);
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup',   onUp);
+
+      // Resetar transforms sem transição (evita animação de retorno)
+      tabs.forEach(t => { t.classList.add('tab-no-transition'); t.style.transform = ''; });
+      tabsBar.getBoundingClientRect(); // forçar reflow
+      tabs.forEach(t => t.classList.remove('tab-no-transition'));
+
+      clone.remove();
+      tab.classList.remove('tab-dragging-placeholder');
+
+      // Reordenar DOM na posição calculada
+      if (insertIdx !== srcIdx) {
+        const allTabs = getDraggableTabs();
+        const ref = allTabs[insertIdx];
+        if (ref) {
+          srcIdx < insertIdx ? ref.after(tab) : ref.before(tab);
+        }
+      }
+    }
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup',   onUp);
   });
 
   // ─── TAB SELECTION ────────────────────────────────────────
