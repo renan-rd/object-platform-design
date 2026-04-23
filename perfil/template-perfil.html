@@ -6,13 +6,6 @@
   <title>Template de Lista — RD Station</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,700;9..40,900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script>
-    // Inicializa o cliente compartilhado antes de qualquer módulo usar
-    window.__sbClient = supabase.createClient(
-      'https://deeklhefjxldkweqjtsa.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlZWtsaGVmanhsZGt3ZXFqdHNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5Mzc5NjcsImV4cCI6MjA2NzUxMzk2N30.9oxYKZHfRNjbXJzQ17POORk_5Z12DDdkPUqAbeIdMcQ'
-    );
-  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -73,8 +66,6 @@
       justify-content: space-between;
       padding: var(--sp-3);
       height: 64px;
-      position: relative;
-      z-index: 9600;
     }
 
     .navbar-logo {
@@ -224,15 +215,15 @@
     /* ─── CONTENT ─────────────────────────────────────── */
     .content {
       grid-area: content;
-      background: var(--color-surface);
-      padding: 0 24px 24px;
+      background: var(--color-surface-low);
+      padding: 24px;
       border-top-left-radius: 20px;
       overflow-y: auto;
       height: 100%;
     }
 
     .content-inner {
-      width: 100%;
+      max-width: 1312px;
     }
 
     /* ─── PAGE HEADER ─────────────────────────────────── */
@@ -390,19 +381,14 @@
     }
 
     .tab[draggable="true"] { cursor: grab; }
-    .tab.tab-dragging-placeholder { opacity: 0; pointer-events: none; }
-    .tab { transition: transform 200ms ease; }
-    .tab.tab-no-transition { transition: none; }
+    .tab[draggable="true"]:active { cursor: grabbing; }
 
-    .tab-drag-clone {
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999;
-      opacity: 0.85;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    .tab.drag-over { opacity: 0.5; }
+
+    .tab.dragging {
+      opacity: 0.4;
+      background: var(--color-primary-surface-low);
       border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-      background: var(--color-surface);
-      cursor: grabbing;
     }
 
     .tab-content {
@@ -675,7 +661,8 @@
     /* ─── TABLE ───────────────────────────────────────── */
     .table-wrapper {
       width: 100%;
-      overflow: hidden;
+      overflow-x: auto;
+      overflow-y: hidden;
     }
 
     table {
@@ -686,15 +673,9 @@
 
     th, td {
       overflow: hidden;
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
-
-    /* Apenas a coluna de e-mail trunca com "..." */
-    th.col-email,
-    td.col-email { text-overflow: ellipsis; }
-    td.col-email .cell-text { overflow: hidden; min-width: 0; }
-    td.col-email .cell-plain,
-    td.col-email .cell-text-main { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     thead tr {
       background: var(--color-surface);
@@ -712,9 +693,10 @@
       white-space: nowrap;
     }
 
-    thead th:first-child { width: 44px; }
-    thead th:nth-child(2) { width: 60px; }
-    thead th:last-child  { width: 52px; }
+    thead th:first-child { width: 44px; min-width: 44px; }
+    thead th:nth-child(2) { width: 60px; min-width: 60px; }
+    thead th:last-child  { width: 52px; min-width: 52px; }
+    thead th { min-width: 140px; }
 
     .th-inner {
       display: flex;
@@ -769,7 +751,7 @@
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
     /* Text + subtext */
-    .cell-text { display: flex; flex-direction: column; gap: 2px; }
+    .cell-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow: hidden; }
 
     .cell-text-main {
       font-size: 16px;
@@ -779,6 +761,8 @@
       line-height: 1.5;
       text-decoration: none;
       display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
 
@@ -791,9 +775,10 @@
       letter-spacing: -0.14px;
       line-height: 1.4;
       display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
-
 
     /* Plain text */
     .cell-plain {
@@ -803,6 +788,8 @@
       letter-spacing: -0.16px;
       line-height: 1.5;
       display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
 
@@ -844,14 +831,16 @@
 
     /* Status dropdown */
     .status-dropdown {
-      position: fixed;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
       background: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-sm);
       box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      z-index: 9500;
+      z-index: 100;
       min-width: 220px;
-      padding: 0;
+      padding: var(--sp-1) 0;
     }
 
     .status-dropdown-item {
@@ -886,7 +875,7 @@
     }
 
     .actions-btn:hover { background: #b2f4ff; }
-    .actions-btn svg { width: 20px; height: 20px; }
+    .actions-btn svg { width: 20px; height: 20px; fill: var(--color-text-low); }
 
     /* ─── DRAWER ─────────────────────────────────────── */
     .drawer-overlay {
@@ -903,7 +892,7 @@
       width: 400px;
       background: var(--color-surface);
       box-shadow: 0 8px 18px rgba(0,34,51,0.16);
-      z-index: 9700;
+      z-index: 201;
       display: flex; flex-direction: column;
       transform: translateX(100%);
       transition: transform 0.25s ease;
@@ -1152,60 +1141,41 @@
     /* ─── DRAWER AVATAR ────────────────────────────────── */
     .drawer-avatar-field {
       display: flex;
-      align-items: center;
       justify-content: center;
-      gap: 16px;
       padding: 4px 0 16px;
     }
     .drawer-avatar-wrap {
       position: relative;
-      width: 80px;
-      height: 80px;
-      border-radius: 999px;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      cursor: pointer;
       overflow: hidden;
       flex-shrink: 0;
-      background: #E5E8EA;
     }
     .drawer-avatar-preview {
-      width: 80px;
-      height: 80px;
-      border-radius: 999px;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #E5E8EA;
+      background: var(--color-surface-low);
     }
     .drawer-avatar-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .drawer-avatar-info {
+    .drawer-avatar-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
       display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .drawer-avatar-label {
-      color: var(--color-text-high);
-      font-size: 16px;
-      font-weight: 700;
-      line-height: 24px;
-    }
-    .drawer-avatar-btn {
-      display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 6px 12px 6px 8px;
-      background: var(--color-primary-surface-low);
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      color: var(--color-primary-text);
-      font-size: 14px;
-      font-family: var(--font);
-      font-weight: 700;
-      line-height: 1.4;
-      transition: background .15s;
-      white-space: nowrap;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity .2s;
+      border-radius: 50%;
     }
-    .drawer-avatar-btn:hover { background: #8eeeff; }
+    .drawer-avatar-wrap:hover .drawer-avatar-overlay { opacity: 1; }
 
     /* ─── MULTI-FIELD ───────────────────────────────────── */
     .multi-field-row {
@@ -1561,99 +1531,430 @@
 
     .page-btn.disabled { pointer-events: none; }
 
-    /* ─── ACCOUNT DROPDOWN ───────────────────────────────── */
-    .account-menu { position: relative; }
-    .account-dropdown {
-      position: absolute; top: calc(100% + 8px); right: 0;
-      background: #fff; border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.14);
-      min-width: 180px; overflow: hidden;
-      opacity: 0; pointer-events: none;
-      transform: translateY(-6px);
-      transition: opacity .15s, transform .15s;
-      z-index: 500;
-    }
-    .account-dropdown.open { opacity: 1; pointer-events: all; transform: translateY(0); }
-    .account-dropdown-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 12px 16px; cursor: pointer;
-      font-size: 14px; font-weight: 500; color: #002233;
-      font-family: 'DM Sans', sans-serif;
-      transition: background .12s;
-    }
-    .account-dropdown-item:hover { background: #f2f4f6; }
-    .account-dropdown-item svg { width: 18px; height: 18px; fill: #405466; flex-shrink: 0; }
-    .account-dropdown-item.danger { color: #d93025; }
-    .account-dropdown-item.danger svg { fill: #d93025; }
-    .account-dropdown-divider { height: 1px; background: #e5e8ea; margin: 4px 0; }
-
-    /* ─── LOGIN OVERLAY ──────────────────────────────────── */
-    .login-overlay {
-      position: fixed; inset: 0; z-index: 9000;
-      background: #F2F4F7;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'DM Sans', sans-serif;
-    }
-    .login-overlay.hidden { display: none; }
-    .login-card {
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 4px 32px rgba(0,34,51,0.10);
-      width: 400px;
-      padding: 40px;
-      display: flex; flex-direction: column; align-items: center; gap: 28px;
-    }
-    .login-logo { display: flex; align-items: center; gap: 10px; }
-    .login-heading {
-      text-align: center;
-    }
-    .login-heading h1 {
-      font-size: 22px; font-weight: 700; color: #002233;
-      margin: 0 0 6px; letter-spacing: -0.3px;
-    }
-    .login-heading p {
-      font-size: 14px; color: #596B7A; margin: 0;
-    }
-    .login-form { width: 100%; display: flex; flex-direction: column; gap: 16px; }
-    .login-field { display: flex; flex-direction: column; gap: 6px; }
-    .login-field label {
-      font-size: 13px; font-weight: 600; color: #002233; letter-spacing: -0.1px;
-    }
-    .login-input-wrap { position: relative; }
-    .login-input {
-      width: 100%; box-sizing: border-box;
-      height: 44px; padding: 0 12px;
-      border: 1.5px solid #b2bcc1; border-radius: 10px;
-      font-size: 15px; font-family: 'DM Sans', sans-serif; color: #002233;
-      background: #fff; outline: none;
-      transition: border-color .15s;
-    }
-    .login-input:focus { border-color: #0077B2; }
-    .login-input.has-toggle { padding-right: 44px; }
-    .login-toggle-pw {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; cursor: pointer; padding: 4px;
-      display: flex; align-items: center; color: #596B7A;
-    }
-    .login-toggle-pw svg { width: 18px; height: 18px; fill: #596B7A; }
-    .login-error {
-      background: #FFD6E4; border: 1px solid #C20046; border-radius: 8px;
-      padding: 10px 14px; font-size: 13px; color: #C20046;
-      display: none;
-    }
-    .login-btn {
-      width: 100%; height: 48px; border-radius: 12px; border: none;
-      background: #003D5C; color: #00DBFF;
-      font-size: 16px; font-weight: 700; font-family: 'DM Sans', sans-serif;
-      line-height: 24px; cursor: pointer;
-      transition: background .15s;
-    }
-    .login-btn:hover { background: #005A87; color: #66E9FF; }
-    .login-btn:disabled { background: #b2bcc1; color: #fff; cursor: not-allowed; }
-    .login-btn:disabled { background: #b2bcc1; cursor: not-allowed; }
-    .login-lang {
-      font-size: 12px; color: #7f8d99;
-    }
+/* ─── PROFILE PAGE ──────────────────────────────────── */
+.profile-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr 280px;
+  gap: 16px;
+  min-height: 100%;
+  align-items: start;
+}
+.profile-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.profile-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.profile-card-centered {
+  align-items: center;
+  text-align: center;
+}
+/* Avatar */
+.profile-avatar-wrap {
+  width: 80px; height: 80px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.profile-avatar-initials {
+  width: 80px; height: 80px;
+  border-radius: var(--radius-pill);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 900; color: #fff;
+}
+.profile-name-group {
+  display: flex; flex-direction: column; gap: 8px; align-items: center;
+}
+.profile-name {
+  font-size: 20px; font-weight: 900;
+  color: var(--color-text-high);
+  letter-spacing: -0.2px; line-height: 1.5;
+}
+.profile-role {
+  font-size: 16px; font-weight: 500;
+  color: var(--color-text-high);
+  letter-spacing: -0.16px; line-height: 1.5;
+  margin-top: -8px;
+}
+/* Quick action buttons */
+.profile-quick-actions {
+  display: flex; gap: 8px;
+}
+.profile-quick-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+.profile-tooltip {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s;
+  white-space: nowrap;
+  z-index: 200;
+}
+.profile-quick-wrap:hover .profile-tooltip { opacity: 1; }
+.profile-tooltip-arrow {
+  width: 10px; height: 6px;
+  background: #002233;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+.profile-tooltip-box {
+  padding: 8px 12px;
+  background: #002233;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-family: var(--font);
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+}
+.profile-quick-btn {
+  width: 40px; height: 40px;
+  background: var(--color-primary-surface-low);
+  border: none; border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--color-primary-text);
+  transition: background .15s;
+  flex-shrink: 0;
+}
+.profile-quick-btn:hover { background: #66EBFF; }
+.profile-quick-btn svg { width: 24px; height: 24px; fill: var(--color-primary-text); }
+/* Section header */
+.profile-section-header {
+  font-size: 16px; font-weight: 900;
+  color: #636e7c;
+  letter-spacing: -0.16px; line-height: 1.5;
+}
+/* Divider */
+.profile-divider {
+  height: 1px; background: var(--color-border);
+  border: none; margin: 0;
+}
+/* Identification list */
+.profile-ident-list { display: flex; flex-direction: column; gap: 8px; }
+.profile-ident-item {
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.profile-ident-item svg { width: 24px; height: 24px; flex-shrink: 0; fill: var(--color-text-low); }
+.profile-ident-item span {
+  font-size: 16px; font-weight: 500;
+  color: #212429; letter-spacing: -0.16px; line-height: 1.5;
+  flex: 1;
+}
+/* Detail list */
+.profile-detail-list { display: flex; flex-direction: column; gap: 8px; }
+.profile-detail-item { display: flex; flex-direction: column; }
+.profile-detail-label {
+  font-size: 12px; font-weight: 500;
+  color: var(--color-text-low);
+  letter-spacing: -0.12px; line-height: 1.3;
+}
+.profile-detail-value {
+  font-size: 16px; font-weight: 500;
+  color: #212429;
+  letter-spacing: -0.16px; line-height: 1.5;
+}
+/* Privacy */
+.profile-privacy-list { display: flex; flex-direction: column; gap: 4px; }
+.profile-privacy-item {
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.profile-privacy-item svg { width: 24px; height: 24px; flex-shrink: 0; }
+.profile-privacy-item span {
+  font-size: 16px; font-weight: 500;
+  color: #212429; letter-spacing: -0.16px; line-height: 1.5;
+}
+/* Link button */
+.profile-link-btn {
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font);
+  font-size: 14px; font-weight: 700;
+  color: var(--color-primary-text);
+  letter-spacing: -0.14px; line-height: 1.4;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  align-self: center;
+  transition: background .15s;
+}
+.profile-link-btn:hover { background: #B2F4FF; color: #005580; }
+/* Company */
+.profile-company-item {
+  display: flex; gap: 16px; align-items: center;
+}
+.profile-company-logo {
+  width: 40px; height: 40px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 900; color: #fff;
+  flex-shrink: 0; overflow: hidden;
+}
+.profile-company-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.profile-company-header { display: flex; align-items: center; justify-content: space-between; }
+.profile-company-name {
+  font-size: 16px; font-weight: 500; color: #212429;
+  letter-spacing: -0.16px; line-height: 1.5;
+}
+.profile-company-tag {
+  font-size: 12px; font-weight: 700;
+  color: var(--color-text-low);
+  letter-spacing: -0.12px; line-height: 1.3;
+}
+.profile-company-role {
+  font-size: 14px; font-weight: 500;
+  color: var(--color-text-low);
+  letter-spacing: -0.14px; line-height: 1.4;
+}
+/* Tags */
+.profile-tags-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.profile-tag {
+  background: var(--color-surface-low);
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+  font-size: 12px; font-weight: 900;
+  color: var(--color-text-high);
+  letter-spacing: -0.12px; line-height: 1.3;
+}
+/* AI Summary card */
+.profile-ai-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.profile-ai-header {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 700;
+  color: #6E00C5;
+  letter-spacing: -0.14px;
+}
+.profile-ai-header svg { width: 24px; height: 24px; flex-shrink: 0; }
+.profile-ai-text {
+  font-size: 14px; font-weight: 500;
+  color: var(--color-text-low);
+  letter-spacing: -0.14px; line-height: 1.5;
+  margin: 0;
+}
+/* Tabs card */
+.profile-card-tabs {
+  padding: 24px;
+  gap: 16px;
+}
+/* ── Tabs nav ── */
+.profile-tabs-nav {
+  display: flex; align-items: flex-end;
+  padding: 0;
+  border-bottom: 2px solid var(--color-border);
+  gap: 0;
+  overflow: hidden;
+}
+.profile-tab {
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font);
+  font-size: 16px; font-weight: 700;
+  color: var(--color-text-low);
+  padding: 8px 16px 14px;
+  border-bottom: 4px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+  line-height: 24px;
+  transition: color .15s, border-color .15s;
+}
+.profile-tab:first-child { padding-left: 0; }
+.profile-tab:hover { color: var(--color-primary-text); }
+.profile-tab.active {
+  color: var(--color-primary-text);
+  border-bottom-color: #00DBFF;
+}
+.profile-tab-more {
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font);
+  color: var(--color-primary-text);
+  padding: 6px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm);
+  margin-left: auto;
+  align-self: center;
+  transition: background .15s;
+}
+.profile-tab-more:hover { background: #B2F4FF; }
+/* ── Activities bar ── */
+.profile-activities-bar {
+  display: flex; gap: 8px; align-items: center;
+  padding: 0;
+}
+.profile-search-wrap {
+  display: flex; align-items: center;
+  border: 1px solid var(--color-border-interactive);
+  border-radius: var(--radius-md);
+  padding: 4px 4px 4px 12px;
+  gap: 8px; flex: 1;
+  background: var(--color-surface);
+}
+.profile-search-wrap input {
+  border: none; outline: none; flex: 1;
+  font-family: var(--font); font-size: 16px; font-weight: 500;
+  color: var(--color-text-low); letter-spacing: -0.16px;
+  background: transparent;
+}
+.profile-search-icon {
+  height: 32px; width: 32px; padding: 6px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; overflow: hidden;
+}
+.profile-search-icon svg { width: 20px; height: 20px; fill: #596B7A; }
+.profile-bar-btn {
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font);
+  font-size: 16px; font-weight: 700;
+  color: var(--color-primary-text);
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px 8px 12px; border-radius: var(--radius-md);
+  white-space: nowrap; line-height: 24px;
+  transition: background .15s, color .15s;
+}
+.profile-bar-btn.sort { padding: 8px 12px 8px 16px; }
+.profile-bar-btn:hover { background: #B2F4FF; color: #005580; }
+.profile-bar-btn:hover svg { fill: #005580; }
+.profile-bar-btn svg { width: 24px; height: 24px; fill: var(--color-primary-text); transition: fill .15s; }
+/* ── Timeline ── */
+.profile-timeline {
+  display: flex; flex-direction: column;
+  padding: 0;
+  gap: 0;
+}
+.profile-timeline-item {
+  display: flex; gap: 12px; align-items: stretch;
+}
+.profile-timeline-left {
+  width: 40px; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; padding-top: 4px;
+}
+.profile-timeline-avatar {
+  width: 40px; height: 40px; border-radius: var(--radius-pill);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 900; color: #fff;
+  flex-shrink: 0;
+}
+.profile-timeline-line {
+  width: 4px; flex: 1;
+  background: var(--color-border);
+  min-height: 20px;
+}
+.profile-timeline-item:last-child .profile-timeline-line { display: none; }
+.profile-timeline-content {
+  flex: 1;
+  padding: 12px 0 32px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.profile-timeline-title {
+  font-size: 16px; font-weight: 700;
+  color: var(--color-text-high); line-height: 24px;
+}
+.profile-timeline-desc {
+  font-size: 16px; font-weight: 500;
+  color: var(--color-text-high); line-height: 24px;
+}
+.profile-timeline-tag {
+  display: inline-flex;
+  background: var(--color-surface-low);
+  border-radius: var(--radius-xs);
+  padding: 4px 8px;
+  font-size: 12px; font-weight: 900;
+  color: var(--color-text-high); line-height: 1.3;
+  align-self: flex-start;
+}
+.profile-timeline-more {
+  flex-shrink: 0;
+  background: none; border: none; cursor: pointer;
+  color: var(--color-primary-text);
+  width: 32px; height: 32px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.profile-timeline-more:hover { background: #B2F4FF; }
+/* Right column */
+.profile-responsible-item {
+  display: flex; gap: 12px; align-items: center;
+}
+.profile-resp-avatar {
+  width: 36px; height: 36px; border-radius: var(--radius-pill);
+  flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 900; color: #fff;
+}
+.profile-resp-info { display: flex; flex-direction: column; }
+.profile-resp-role {
+  font-size: 12px; font-weight: 500;
+  color: var(--color-text-low); letter-spacing: -0.12px; line-height: 1.3;
+}
+.profile-resp-name {
+  font-size: 14px; font-weight: 700;
+  color: var(--color-primary-text); letter-spacing: -0.14px; line-height: 1.4;
+}
+.profile-ongoing-item {
+  display: flex; gap: 8px; align-items: center;
+  background: var(--color-surface-low);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+}
+.profile-ongoing-item--bordered {
+  background: none;
+  border: 1px solid var(--ongoing-border, var(--color-border));
+}
+.profile-ongoing-icon {
+  width: 32px; height: 32px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.profile-ongoing-info { display: flex; flex-direction: column; }
+.profile-ongoing-title {
+  font-size: 14px; font-weight: 700;
+  color: var(--color-text-high); letter-spacing: -0.14px; line-height: 1.4;
+}
+.profile-ongoing-sub {
+  font-size: 12px; font-weight: 500;
+  color: var(--color-text-low); letter-spacing: -0.12px; line-height: 1.3;
+}
+.profile-integration-item {
+  display: flex; gap: 8px; align-items: center;
+  border: 1px solid #D6DBDE;
+  border-radius: var(--radius-sm);
+  padding: 12px;
+}
+.profile-integration-logo {
+  width: 32px; height: 32px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 11px; font-weight: 900; color: #fff;
+  overflow: hidden;
+}
+.profile-integration-info { display: flex; flex-direction: column; }
+.profile-integration-name {
+  font-size: 14px; font-weight: 700;
+  color: var(--color-text-high); letter-spacing: -0.14px;
+}
+.profile-integration-detail {
+  font-size: 12px; font-weight: 500;
+  color: var(--color-text-low); letter-spacing: -0.12px;
+}
   </style>
 </head>
 <body>
@@ -1704,18 +2005,12 @@
 
       <div class="navbar-divider"></div>
 
-      <div class="account-menu" id="account-menu">
+      <div class="account-menu">
         <div class="account-avatar">
           <img src="avatar-navbar.png" alt="Avatar">
         </div>
-        <span class="account-name" id="account-name">Agência RD</span>
+        <span class="account-name">Agência RD</span>
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.61138 13.4077L5.16098 8.95728C4.94634 8.74264 4.94634 8.39466 5.16098 8.18004L5.68005 7.66097C5.89432 7.4467 6.24159 7.44629 6.45637 7.66006L10 11.1871L13.5436 7.66006C13.7584 7.44629 14.1057 7.4467 14.32 7.66097L14.839 8.18004C15.0537 8.39468 15.0537 8.74267 14.839 8.95728L10.3886 13.4077C10.174 13.6223 9.82602 13.6223 9.61138 13.4077Z" fill="white"/></svg>
-        <div class="account-dropdown" id="account-dropdown">
-          <div class="account-dropdown-item" id="logout-btn">
-            <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-            Sair
-          </div>
-        </div>
       </div>
     </div>
   </nav>
@@ -1729,14 +2024,12 @@
       </div>
     </div>
     <!-- Contatos (active) -->
-    <a href="./index.html" style="display:contents; text-decoration:none;">
-      <div class="sidebar-item active">
-        <div class="sidebar-item-inner">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.375 3.25H16.5C17.7305 3.25 18.75 4.26953 18.75 5.5V19C18.75 20.2656 17.7305 21.25 16.5 21.25H6.375C5.10938 21.25 4.125 20.2656 4.125 19V5.5C4.125 4.26953 5.10938 3.25 6.375 3.25ZM10.3125 13.375C8.73047 13.375 7.5 14.6406 7.5 16.1875C7.5 16.5039 7.74609 16.75 8.0625 16.75H14.8125C15.0938 16.75 15.375 16.5039 15.375 16.1875C15.375 14.6406 14.1094 13.375 12.5625 13.375H10.3125ZM9.1875 10C9.1875 10.8086 9.60938 11.5469 10.3125 11.9688C10.9805 12.3555 11.8594 12.3555 12.5625 11.9688C13.2305 11.5469 13.6875 10.8086 13.6875 10C13.6875 9.22656 13.2305 8.48828 12.5625 8.06641C11.8594 7.67969 10.9805 7.67969 10.3125 8.06641C9.60938 8.48828 9.1875 9.22656 9.1875 10ZM21 6.0625V8.3125C21 8.62891 20.7188 8.875 20.4375 8.875C20.1211 8.875 19.875 8.62891 19.875 8.3125V6.0625C19.875 5.78125 20.1211 5.5 20.4375 5.5C20.7188 5.5 21 5.78125 21 6.0625ZM20.4375 10C20.7188 10 21 10.2812 21 10.5625V12.8125C21 13.1289 20.7188 13.375 20.4375 13.375C20.1211 13.375 19.875 13.1289 19.875 12.8125V10.5625C19.875 10.2812 20.1211 10 20.4375 10ZM21 15.0625V17.3125C21 17.6289 20.7188 17.875 20.4375 17.875C20.1211 17.875 19.875 17.6289 19.875 17.3125V15.0625C19.875 14.7812 20.1211 14.5 20.4375 14.5C20.7188 14.5 21 14.7812 21 15.0625Z" fill="#00DBFF"/></svg>
-        </div>
-        <div class="sidebar-indicator"></div>
+    <div class="sidebar-item active">
+      <div class="sidebar-item-inner">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.375 3.25H16.5C17.7305 3.25 18.75 4.26953 18.75 5.5V19C18.75 20.2656 17.7305 21.25 16.5 21.25H6.375C5.10938 21.25 4.125 20.2656 4.125 19V5.5C4.125 4.26953 5.10938 3.25 6.375 3.25ZM10.3125 13.375C8.73047 13.375 7.5 14.6406 7.5 16.1875C7.5 16.5039 7.74609 16.75 8.0625 16.75H14.8125C15.0938 16.75 15.375 16.5039 15.375 16.1875C15.375 14.6406 14.1094 13.375 12.5625 13.375H10.3125ZM9.1875 10C9.1875 10.8086 9.60938 11.5469 10.3125 11.9688C10.9805 12.3555 11.8594 12.3555 12.5625 11.9688C13.2305 11.5469 13.6875 10.8086 13.6875 10C13.6875 9.22656 13.2305 8.48828 12.5625 8.06641C11.8594 7.67969 10.9805 7.67969 10.3125 8.06641C9.60938 8.48828 9.1875 9.22656 9.1875 10ZM21 6.0625V8.3125C21 8.62891 20.7188 8.875 20.4375 8.875C20.1211 8.875 19.875 8.62891 19.875 8.3125V6.0625C19.875 5.78125 20.1211 5.5 20.4375 5.5C20.7188 5.5 21 5.78125 21 6.0625ZM20.4375 10C20.7188 10 21 10.2812 21 10.5625V12.8125C21 13.1289 20.7188 13.375 20.4375 13.375C20.1211 13.375 19.875 13.1289 19.875 12.8125V10.5625C19.875 10.2812 20.1211 10 20.4375 10ZM21 15.0625V17.3125C21 17.6289 20.7188 17.875 20.4375 17.875C20.1211 17.875 19.875 17.6289 19.875 17.3125V15.0625C19.875 14.7812 20.1211 14.5 20.4375 14.5C20.7188 14.5 21 14.7812 21 15.0625Z" fill="#00DBFF"/></svg>
       </div>
-    </a>
+      <div class="sidebar-indicator"></div>
+    </div>
     <!-- Atrair -->
     <div class="sidebar-item">
       <div class="sidebar-item-inner">
@@ -1765,208 +2058,375 @@
 
   <!-- ── CONTENT ─────────────────────────────────────── -->
   <main class="content">
-    <div class="content-inner">
+    <div class="profile-layout">
 
-      <!-- PAGE HEADER -->
-      <div class="page-header">
-        <div class="page-section">Gestão unificada</div>
+      <!-- ─── LEFT COLUMN ─────────────────────────────── -->
+      <div class="profile-col">
 
-        <div class="page-header-main">
-          <h1 class="page-title">Base de contatos</h1>
-          <div class="header-actions">
-            <button class="btn-icon" title="Mais opções">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.3226 9.67742C13.6065 9.67742 14.6452 10.7161 14.6452 12C14.6452 13.2839 13.6065 14.3226 12.3226 14.3226C11.0387 14.3226 10 13.2839 10 12C10 10.7161 11.0387 9.67742 12.3226 9.67742ZM10 6.32258C10 7.60645 11.0387 8.64516 12.3226 8.64516C13.6065 8.64516 14.6452 7.60645 14.6452 6.32258C14.6452 5.03871 13.6065 4 12.3226 4C11.0387 4 10 5.03871 10 6.32258ZM10 17.6774C10 18.9613 11.0387 20 12.3226 20C13.6065 20 14.6452 18.9613 14.6452 17.6774C14.6452 16.3935 13.6065 15.3548 12.3226 15.3548C11.0387 15.3548 10 16.3935 10 17.6774Z" fill="#0077B2"/></svg>
-            </button>
-            <button class="btn-secondary">Importar contatos</button>
-            <button class="btn-primary">Adicionar contato</button>
+        <!-- Profile card -->
+        <div class="profile-card profile-card-centered">
+          <div class="profile-avatar-wrap">
+            <div class="profile-avatar-initials"><img src="Avatar-Larissa.png" alt="Larissa Oliveira" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-pill);"></div>
+          </div>
+          <div class="profile-name-group">
+            <div class="profile-name">Larissa Oliveira</div>
+            <div class="profile-role">Diretora Financeira</div>
+          </div>
+          <div class="profile-quick-actions">
+            <div class="profile-quick-wrap">
+              <button class="profile-quick-btn">
+                <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+              </button>
+              <div class="profile-tooltip">
+                <div class="profile-tooltip-arrow"></div>
+                <div class="profile-tooltip-box">Enviar e-mail</div>
+              </div>
+            </div>
+            <div class="profile-quick-wrap">
+              <button class="profile-quick-btn">
+                <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+              </button>
+              <div class="profile-tooltip">
+                <div class="profile-tooltip-arrow"></div>
+                <div class="profile-tooltip-box">Ligar</div>
+              </div>
+            </div>
+            <div class="profile-quick-wrap">
+              <button class="profile-quick-btn">
+                <svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+              </button>
+              <div class="profile-tooltip">
+                <div class="profile-tooltip-arrow"></div>
+                <div class="profile-tooltip-box">Criar tarefa</div>
+              </div>
+            </div>
+            <div class="profile-quick-wrap">
+              <button class="profile-quick-btn">
+                <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
+              </button>
+              <div class="profile-tooltip">
+                <div class="profile-tooltip-arrow"></div>
+                <div class="profile-tooltip-box">Criar negociação</div>
+              </div>
+            </div>
+            <div class="profile-quick-wrap">
+              <button class="profile-quick-btn">
+                <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+              </button>
+              <div class="profile-tooltip">
+                <div class="profile-tooltip-arrow"></div>
+                <div class="profile-tooltip-box">Mais opções</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <p class="page-aux-text">Visualize, edite e gerencie todas as informações de seus contatos em um só lugar.</p>
-
-        <div>
-          <div class="status-badge">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- tray (static) -->
-              <path d="M14.2168 9.10156C14.4858 9.19423 14.667 9.44697 14.667 9.73145V11.874C14.6669 12.1577 14.4867 12.4107 14.2188 12.5039L8.21875 14.5908C8.07711 14.64 7.92289 14.64 7.78125 14.5908L1.78125 12.5039C1.51328 12.4107 1.33307 12.1577 1.33301 11.874V9.73145C1.33302 9.44697 1.51424 9.19423 1.7832 9.10156L4.97949 8L5.91699 8.86914L2.50488 10.0293L8 11.9375L13.4951 10.0293L10.083 8.86914L11.0205 8L14.2168 9.10156Z" fill="#002233"/>
-              <!-- arrow (animated) -->
-              <g class="import-arrow">
-                <path d="M8.93066 1.33301C9.24028 1.33315 9.48926 1.57666 9.48926 1.87891V4.9707H11.5342C11.9487 4.97076 12.1557 5.45969 11.8623 5.74609L8.31836 9.20508C8.14369 9.37557 7.85631 9.37557 7.68164 9.20508L4.1377 5.74609C3.84427 5.45969 4.05132 4.97076 4.46582 4.9707H6.50879V1.87891C6.50879 1.57657 6.75764 1.33301 7.06738 1.33301H8.93066Z" fill="#002233"/>
-              </g>
-            </svg>
-            <span>Sua importação já começou e está 35% concluída.</span>
+        <!-- Info card: Identificação + Informações + Endereço + Privacidade -->
+        <div class="profile-card">
+          <div class="profile-section-header">Identificação do Contato</div>
+          <div class="profile-ident-list">
+            <div class="profile-ident-item">
+              <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+              <span>larissa@itau.com</span>
+            </div>
+            <div class="profile-ident-item">
+              <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+              <span>+55 (11) 98817-8810</span>
+            </div>
+            <div class="profile-ident-item">
+              <svg viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+              <span>laris.ol</span>
+            </div>
           </div>
+          <div class="profile-divider"></div>
+          <div class="profile-section-header">Informações de Contato</div>
+          <div class="profile-detail-list">
+            <div class="profile-detail-item">
+              <span class="profile-detail-label">Outros e-mails</span>
+              <span class="profile-detail-value">larissa.oliveira@ion.com</span>
+              <span class="profile-detail-value">lari@gmail.com</span>
+            </div>
+            <div class="profile-detail-item">
+              <span class="profile-detail-label">Outros telefones</span>
+              <span class="profile-detail-value">+55 (48) 98877-6655</span>
+              <span class="profile-detail-value">+55 (16) 99897-9695</span>
+            </div>
+            <div class="profile-detail-item">
+              <span class="profile-detail-label">Data de nascimento</span>
+              <span class="profile-detail-value">17/01/1991</span>
+            </div>
+            <div class="profile-detail-item">
+              <span class="profile-detail-label">RG</span>
+              <span class="profile-detail-value">45.321.321-66</span>
+            </div>
+            <div class="profile-detail-item">
+              <span class="profile-detail-label">CPF</span>
+              <span class="profile-detail-value">123.123.123-55</span>
+            </div>
+          </div>
+          <div class="profile-divider"></div>
+          <div class="profile-section-header">Endereço do Contato</div>
+          <div class="profile-detail-list">
+            <div class="profile-detail-item">
+              <span class="profile-detail-label">Endereço</span>
+              <span class="profile-detail-value">Rua das pedras, 123</span>
+            </div>
+            <div class="profile-detail-item">
+              <span class="profile-detail-label">Complemento</span>
+              <span class="profile-detail-value">Casa</span>
+            </div>
+            <div class="profile-detail-item">
+              <span class="profile-detail-label">Bairro</span>
+              <span class="profile-detail-value">Canasvieiras</span>
+            </div>
+            <div class="profile-detail-item">
+              <span class="profile-detail-label">Cidade</span>
+              <span class="profile-detail-value">Florianópolis</span>
+            </div>
+            <div class="profile-detail-item">
+              <span class="profile-detail-label">Estado</span>
+              <span class="profile-detail-value">Santa Catarina</span>
+            </div>
+            <div class="profile-detail-item">
+              <span class="profile-detail-label">CEP</span>
+              <span class="profile-detail-value">54.000-000</span>
+            </div>
+          </div>
+          <div class="profile-divider"></div>
+          <div class="profile-section-header">Privacidade de Dados</div>
+          <div class="profile-privacy-list">
+            <div class="profile-privacy-item">
+              <svg viewBox="0 0 24 24" fill="#00693e"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              <span>Envio de comunicação</span>
+            </div>
+            <div class="profile-privacy-item">
+              <svg viewBox="0 0 24 24" fill="#00693e"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              <span>Consentimento</span>
+            </div>
+          </div>
+          <button class="profile-link-btn">Editar contato</button>
         </div>
-      </div>
 
-      <!-- TABS -->
-      <div class="tabs-bar" id="tabs-bar">
-        <!-- Todos os contatos — Active -->
-        <div class="tab active" draggable="true" data-tab-id="1">
-          <div class="tab-content" style="padding-left:0">
-            <div class="tab-icon tab-drag-handle" title="Mover">
-              <svg viewBox="0 0 24 24"><path d="M10.5714 6H8.85714C8.38384 6 8 6.38384 8 6.85714V8.57143C8 9.04473 8.38384 9.42857 8.85714 9.42857H10.5714C11.0447 9.42857 11.4286 9.04473 11.4286 8.57143V6.85714C11.4286 6.38384 11.0447 6 10.5714 6ZM10.5714 10.2857H8.85714C8.38384 10.2857 8 10.6696 8 11.1429V12.8571C8 13.3304 8.38384 13.7143 8.85714 13.7143H10.5714C11.0447 13.7143 11.4286 13.3304 11.4286 12.8571V11.1429C11.4286 10.6696 11.0447 10.2857 10.5714 10.2857ZM10.5714 14.5714H8.85714C8.38384 14.5714 8 14.9553 8 15.4286V17.1429C8 17.6162 8.38384 18 8.85714 18H10.5714C11.0447 18 11.4286 17.6162 11.4286 17.1429V15.4286C11.4286 14.9553 11.0447 14.5714 10.5714 14.5714ZM15.7143 6H14C13.5267 6 13.1429 6.38384 13.1429 6.85714V8.57143C13.1429 9.04473 13.5267 9.42857 14 9.42857H15.7143C16.1876 9.42857 16.5714 9.04473 16.5714 8.57143V6.85714C16.5714 6.38384 16.1876 6 15.7143 6ZM15.7143 10.2857H14C13.5267 10.2857 13.1429 10.6696 13.1429 11.1429V12.8571C13.1429 13.3304 13.5267 13.7143 14 13.7143H15.7143C16.1876 13.7143 16.5714 13.3304 16.5714 12.8571V11.1429C16.5714 10.6696 16.1876 10.2857 15.7143 10.2857ZM15.7143 14.5714H14C13.5267 14.5714 13.1429 14.9553 13.1429 15.4286V17.1429C13.1429 17.6162 13.5267 18 14 18H15.7143C16.1876 18 16.5714 17.6162 16.5714 17.1429V15.4286C16.5714 14.9553 16.1876 14.5714 15.7143 14.5714Z" fill="#8C98A3"/></svg>
-            </div>
-            <span class="tab-label">Todos os contatos</span>
-            <div class="tab-icon tab-close" title="Fechar">
-              <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        <!-- Empresa card -->
+        <div class="profile-card">
+          <div class="profile-section-header">Empresa</div>
+          <div class="profile-company-item">
+            <div class="profile-company-logo"><img src="brand-itau.png" alt="Itaú BBA" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-sm);"></div>
+            <div class="profile-company-info">
+              <div class="profile-company-header">
+                <span class="profile-company-name">Itaú BBA</span>
+                <span class="profile-company-tag">Principal</span>
+              </div>
+              <span class="profile-company-role">Diretora financeira</span>
             </div>
           </div>
-          <div class="tab-stroke"></div>
+          <div class="profile-company-item">
+            <div class="profile-company-logo"><img src="brand-ion.png" alt="Íon" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-sm);"></div>
+            <div class="profile-company-info">
+              <div class="profile-company-header">
+                <span class="profile-company-name">Íon</span>
+              </div>
+              <span class="profile-company-role">Membro do conselho</span>
+            </div>
+          </div>
+          <button class="profile-link-btn">Adicionar empresa</button>
         </div>
 
-        <!-- + Adicionar visualização -->
-        <div class="tab tab-add">
-          <div class="tab-content">
-            <div class="tab-icon">
-              <svg viewBox="0 0 24 24" style="fill:var(--color-primary-text)"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            </div>
-            <span class="tab-label">Adicionar visualização</span>
+        <!-- Tags card -->
+        <div class="profile-card">
+          <div class="profile-section-header">Tags</div>
+          <div class="profile-tags-list">
+            <span class="profile-tag">NOVO</span><span class="profile-tag">NOVO</span>
+            <span class="profile-tag">NOVO</span><span class="profile-tag">NOVO</span>
+            <span class="profile-tag">NOVO</span><span class="profile-tag">NOVO</span>
+            <span class="profile-tag">NOVO</span><span class="profile-tag">NOVO</span>
+            <span class="profile-tag">NOVO</span>
           </div>
-          <div class="tab-stroke"></div>
+          <button class="profile-link-btn">Editar tags</button>
         </div>
 
-        <!-- Fill -->
-        <div class="tab-fill">
-          <div style="flex:1"></div>
-          <div class="tab-stroke" style="height:4px;background:var(--color-surface);position:relative;">
-            <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--color-border)"></div>
+        <!-- Campos personalizados card -->
+        <div class="profile-card">
+          <div class="profile-section-header">Campos personalizados</div>
+          <div class="profile-detail-list">
+            <div class="profile-detail-item">
+              <span class="profile-detail-label">Categoria de interesse</span>
+              <span class="profile-detail-value">SUV</span>
+            </div>
           </div>
+          <button class="profile-link-btn">Editar campos personalizados</button>
         </div>
-      </div>
 
-      <!-- SEARCH & FILTERS -->
-      <div class="search-filters">
-        <div class="filters-left">
-          <!-- Toggle Group -->
-          <div class="toggle-group">
-            <button class="toggle-btn" title="Lista">
-              <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
-            </button>
-            <button class="toggle-btn" title="Kanban">
-              <svg viewBox="0 0 24 24"><path d="M4 4h4v16H4zm6 0h4v10h-4zm6 0h4v7h-4z"/></svg>
-            </button>
-            <button class="toggle-btn" title="Grid">
-              <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
+      </div><!-- /left col -->
+
+      <!-- ─── CENTER COLUMN ─────────────────────────────── -->
+      <div class="profile-col">
+
+        <!-- AI Summary -->
+        <div class="profile-ai-card">
+          <div class="profile-ai-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 8L15.7819 13.2181L21 15L15.7819 16.7819L14 22L12.2181 16.7819L7 15L12.2181 13.2181L14 8Z" fill="#6E00C5"/><path d="M12.5 2L13.1364 3.8636L15 4.5L13.1364 5.1364L12.5 7L11.8636 5.1364L10 4.5L11.8636 3.8636L12.5 2Z" fill="#6E00C5"/><path d="M7.5 6L8.39095 8.60905L11 9.5L8.39095 10.391L7.5 13L6.60905 10.391L4 9.5L6.60905 8.60905L7.5 6Z" fill="#6E00C5"/></svg>
+            <span>Resumo de IA</span>
+          </div>
+          <p class="profile-ai-text">Contato com alta intenção de compra. Possui negociação em aberto e interagiu via WhatsApp hoje com dúvidas sobre preço.</p>
+        </div>
+
+        <!-- Activities card -->
+        <div class="profile-card profile-card-tabs">
+          <div class="profile-tabs-nav">
+            <button class="profile-tab">Visão geral</button>
+            <button class="profile-tab active">Atividades</button>
+            <button class="profile-tab">Pré-vendas</button>
+            <button class="profile-tab">Negociações</button>
+            <button class="profile-tab">Atendimentos</button>
+            <button class="profile-tab-more" title="Mais abas">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
             </button>
           </div>
-
-          <!-- Quick Filter Select -->
-          <div class="select" id="quick-filter-select" role="button" aria-haspopup="listbox" aria-expanded="false">
-            <svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
-            <span class="select-text" id="quick-filter-label">Filtro rápido</span>
-            <button class="search-clear-btn" id="quick-filter-clear" style="display:none" title="Limpar filtro rápido">
-              <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-            </button>
-            <div class="select-caret" id="quick-filter-caret">
-              <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+          <div class="profile-activities-bar">
+            <div class="profile-search-wrap">
+              <input type="text" placeholder="Buscar atividade" />
+              <div class="profile-search-icon">
+                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              </div>
             </div>
-            <div class="quick-filter-dropdown" id="quick-filter-dropdown" role="listbox">
-              <div class="quick-filter-option" data-value="today" role="option">Adicionados hoje</div>
-              <div class="quick-filter-option" data-value="week" role="option">Adicionados esta semana</div>
-              <div class="quick-filter-option" data-value="month" role="option">Adicionados este mês</div>
-              <div class="quick-filter-option" data-value="inactive30" role="option">Sem atualização há 30 dias</div>
-            </div>
-          </div>
-
-          <!-- Filters button -->
-          <button class="btn-text" id="filter-btn">
-            <svg viewBox="0 0 24 24"><path d="M4.25 5.61C6.27 8.2 10 13 10 13v6c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-6s3.72-4.8 5.74-7.39A.998.998 0 0019 4H5c-.72 0-1.15.82-.75 1.61z"/></svg>
-            <span class="filter-badge-wrapper">
+            <button class="profile-bar-btn">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 8.25H19.5C19.7762 8.25 20 8.02616 20 7.75V6.5C20 6.22384 19.7762 6 19.5 6H4.5C4.22384 6 4 6.22384 4 6.5V7.75C4 8.02616 4.22384 8.25 4.5 8.25ZM6.5 13.25H17.5C17.7762 13.25 18 13.0262 18 12.75V11.5C18 11.2238 17.7762 11 17.5 11H6.5C6.22384 11 6 11.2238 6 11.5V12.75C6 13.0262 6.22384 13.25 6.5 13.25ZM8.5 18.25H15.5C15.7762 18.25 16 18.0262 16 17.75V16.5C16 16.2238 15.7762 16 15.5 16H8.5C8.22384 16 8 16.2238 8 16.5V17.75C8 18.0262 8.22384 18.25 8.5 18.25Z" fill="currentColor"/></svg>
               Filtros
-              <span class="filter-badge" id="filter-badge" style="display:none">0</span>
-            </span>
-          </button>
-        </div>
-
-        <div class="filters-right">
-          <!-- Edit columns -->
-          <button class="btn-text">
-            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.1 7.1 0 00-1.62-.94l-.36-2.54A.484.484 0 0014 2h-4a.49.49 0 00-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87a.48.48 0 00.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.37 1.04.7 1.62.94l.36 2.54c.05.24.27.41.49.41h4c.22 0 .43-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.48.48 0 00-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-            Editar colunas
-          </button>
-
-          <!-- Search -->
-          <div class="search-input" id="global-search-wrapper">
-            <input class="search-input-field" id="global-search" type="text" placeholder="Buscar em todos os campos...">
-            <button class="search-clear-btn" id="search-clear-btn" style="display:none" title="Limpar busca">
-              <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
             </button>
-            <button class="search-btn" id="search-btn">
-              <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <button class="profile-bar-btn sort">
+              Mais recentes
+              <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"/></svg>
             </button>
           </div>
-        </div>
-      </div>
-
-    </div><!-- /content-inner -->
-
-    <!-- TABLE (fora do content-inner para ocupar toda a largura) -->
-    <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th><div class="checkbox"></div></th>
-              <th></th>
-              <th>
-                <div class="th-inner">
-                  NOME
-                  <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-                </div>
-              </th>
-              <th>
-                <div class="th-inner">
-                  EMAIL
-                  <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-                </div>
-              </th>
-              <th>
-                <div class="th-inner">
-                  TELEFONE
-                  <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-                </div>
-              </th>
-              <th>
-                <div class="th-inner">
-                  EMPRESA
-                  <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-                </div>
-              </th>
-              <th>
-                <div class="th-inner">
-                  STATUS
-                  <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-                </div>
-              </th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="contacts-tbody">
-            <tr>
-              <td colspan="8" style="text-align:center;padding:32px;color:var(--color-text-low)">Carregando...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- PAGINATION -->
-      <div class="pagination">
-        <div class="pagination-summary">
-          <span>Exibindo</span>
-          <select id="page-size-select" class="pagination-select" style="appearance:none;-webkit-appearance:none;cursor:pointer;">
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-          </select>
-          <span>de</span>
-          <span id="total-count">—</span>
-          <span>contatos</span>
+          <div class="profile-timeline">
+            <div class="profile-timeline-item">
+              <div class="profile-timeline-left">
+                <div class="profile-timeline-avatar" style="background:#8800f7;">LO</div>
+                <div class="profile-timeline-line"></div>
+              </div>
+              <div class="profile-timeline-content">
+                <div class="profile-timeline-title">Título</div>
+                <div class="profile-timeline-desc">Descrição</div>
+                <span class="profile-timeline-tag">NOVO</span>
+              </div>
+              <button class="profile-timeline-more"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
+            </div>
+            <div class="profile-timeline-item">
+              <div class="profile-timeline-left">
+                <div class="profile-timeline-avatar" style="background:#8800f7;">LO</div>
+                <div class="profile-timeline-line"></div>
+              </div>
+              <div class="profile-timeline-content">
+                <div class="profile-timeline-title">Título</div>
+                <div class="profile-timeline-desc">Descrição</div>
+                <span class="profile-timeline-tag">NOVO</span>
+              </div>
+              <button class="profile-timeline-more"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
+            </div>
+            <div class="profile-timeline-item">
+              <div class="profile-timeline-left">
+                <div class="profile-timeline-avatar" style="background:#8800f7;">LO</div>
+                <div class="profile-timeline-line"></div>
+              </div>
+              <div class="profile-timeline-content">
+                <div class="profile-timeline-title">Título</div>
+                <div class="profile-timeline-desc">Descrição</div>
+                <span class="profile-timeline-tag">NOVO</span>
+              </div>
+              <button class="profile-timeline-more"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
+            </div>
+            <div class="profile-timeline-item">
+              <div class="profile-timeline-left">
+                <div class="profile-timeline-avatar" style="background:#8800f7;">LO</div>
+                <div class="profile-timeline-line"></div>
+              </div>
+              <div class="profile-timeline-content">
+                <div class="profile-timeline-title">Título</div>
+                <div class="profile-timeline-desc">Descrição</div>
+                <span class="profile-timeline-tag">NOVO</span>
+              </div>
+              <button class="profile-timeline-more"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
+            </div>
+          </div>
         </div>
 
-        <div class="pagination-nav" id="pagination-nav"></div>
-      </div>
+      </div><!-- /center col -->
 
-    </div>
+      <!-- ─── RIGHT COLUMN ─────────────────────────────── -->
+      <div class="profile-col">
+
+        <!-- Responsável pelo contato -->
+        <div class="profile-card">
+          <div class="profile-section-header">Responsável pelo contato</div>
+          <div class="profile-responsible-item">
+            <div class="profile-resp-avatar"><img src="Avatar-Renata.png" alt="Renata" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="profile-resp-info">
+              <span class="profile-resp-role">Responsável de Marketing</span>
+              <span class="profile-resp-name">Renata Alves</span>
+            </div>
+          </div>
+          <div class="profile-responsible-item">
+            <div class="profile-resp-avatar"><img src="Avatar-Victor.png" alt="Victor" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="profile-resp-info">
+              <span class="profile-resp-role">Responsável de Atendimento</span>
+              <span class="profile-resp-name">Victor Felipe</span>
+            </div>
+          </div>
+          <div class="profile-responsible-item">
+            <div class="profile-resp-avatar"><img src="Avatar-Guilherme.png" alt="Guilherme" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div class="profile-resp-info">
+              <span class="profile-resp-role">Responsável de Vendas</span>
+              <span class="profile-resp-name">Guilherme Bossa</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Em andamento -->
+        <div class="profile-card">
+          <div class="profile-section-header">Em andamento</div>
+          <div class="profile-ongoing-item profile-ongoing-item--bordered" style="--ongoing-border:#0AAF54;">
+            <div class="profile-ongoing-icon" style="background:#25d366;">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+            </div>
+            <div class="profile-ongoing-info">
+              <span class="profile-ongoing-title">WhatsApp Ativo</span>
+              <span class="profile-ongoing-sub">Última mensagem há 2 horas</span>
+            </div>
+          </div>
+          <div class="profile-ongoing-item profile-ongoing-item--bordered" style="--ongoing-border:#00DBFF;">
+            <div class="profile-ongoing-icon" style="background:#0077b2;">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+            </div>
+            <div class="profile-ongoing-info">
+              <span class="profile-ongoing-title">Ticket aberto #1234</span>
+              <span class="profile-ongoing-sub">Aguardando resposta</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Integrações -->
+        <div class="profile-card">
+          <div class="profile-section-header">Integrações</div>
+          <div class="profile-integration-item">
+            <div class="profile-integration-logo"><img src="logo-totvs-integracao.png" alt="TOTVS RM" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-sm);"></div>
+            <div class="profile-integration-info">
+              <span class="profile-integration-name">TOTVS RM</span>
+              <span class="profile-integration-detail">Quantidade de contratos: 03</span>
+            </div>
+          </div>
+          <div class="profile-integration-item">
+            <div class="profile-integration-logo"><img src="logo-shopify-integracao.png" alt="Shopify" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-sm);"></div>
+            <div class="profile-integration-info">
+              <span class="profile-integration-name">Shopify</span>
+              <span class="profile-integration-detail">Quantidade de pedidos: 14</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /right col -->
+
+    </div><!-- /profile-layout -->
   </main>
 
 </div>
@@ -1989,15 +2449,11 @@
 
       <!-- Avatar upload -->
       <div class="drawer-avatar-field">
-        <div class="drawer-avatar-wrap" id="dc-avatar-wrap">
+        <div class="drawer-avatar-wrap" id="dc-avatar-wrap" title="Alterar foto de perfil">
           <div class="drawer-avatar-preview" id="dc-avatar-preview"></div>
-        </div>
-        <div class="drawer-avatar-info">
-          <span class="drawer-avatar-label">Foto de perfil</span>
-          <button type="button" class="drawer-avatar-btn" id="dc-avatar-btn">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.1 9.56094C15.1961 9.31016 15.25 9.03594 15.25 8.75C15.25 7.50781 14.2422 6.5 13 6.5C12.5383 6.5 12.107 6.64062 11.7508 6.87969C11.1016 5.75469 9.88984 5 8.5 5C6.42812 5 4.75 6.67812 4.75 8.75C4.75 8.81328 4.75234 8.87656 4.75469 8.93984C3.44219 9.40156 2.5 10.6531 2.5 12.125C2.5 13.9883 4.01172 15.5 5.875 15.5H14.5C16.157 15.5 17.5 14.157 17.5 12.5C17.5 11.0492 16.4687 9.8375 15.1 9.56094ZM11.8211 11.0539L11.568 11.307C11.343 11.532 10.9773 11.525 10.7594 11.2953L10 10.4867V13.4375C10 13.7492 9.74922 14 9.4375 14H9.0625C8.75078 14 8.5 13.7492 8.5 13.4375V10.4867L7.74063 11.2953C7.52266 11.5273 7.15703 11.532 6.93203 11.307L6.67891 11.0539C6.45859 10.8336 6.45859 10.4773 6.67891 10.2594L8.85156 8.08672C9.07187 7.86641 9.42812 7.86641 9.64609 8.08672L11.8188 10.2594C12.0391 10.4797 12.0391 10.8359 11.8211 11.0539V11.0539Z" fill="currentColor"/></svg>
-            Selecionar arquivo
-          </button>
+          <div class="drawer-avatar-overlay">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M12 15.2a3.2 3.2 0 100-6.4 3.2 3.2 0 000 6.4zm6.3-9.2h-1.9L14.5 4H9.5L7.6 6H5.7C4.2 6 3 7.2 3 8.7v10.6C3 20.8 4.2 22 5.7 22h12.6c1.5 0 2.7-1.2 2.7-2.7V8.7C21 7.2 19.8 6 18.3 6z"/></svg>
+          </div>
         </div>
         <input type="file" id="dc-avatar-input" accept="image/*" style="display:none">
       </div>
@@ -2090,11 +2546,6 @@
 
       <!-- INFORMAÇÕES DO CONTATO -->
       <div class="drawer-section-title">Informações do contato</div>
-
-      <div class="drawer-field">
-        <label class="drawer-label" for="dc-cargo">Cargo</label>
-        <input class="drawer-input" id="dc-cargo" name="cargo" type="text" placeholder="Digite o cargo">
-      </div>
 
       <div class="drawer-field">
         <label class="drawer-label" for="dc-cpf">CPF</label>
@@ -2363,103 +2814,54 @@
 
   // ─── DRAG & DROP ──────────────────────────────────────────
   const tabsBar = document.getElementById('tabs-bar');
+  let dragSrc = null;
 
   function getDraggableTabs() {
     return [...tabsBar.querySelectorAll('.tab[draggable="true"]')];
   }
 
-  // ─── POINTER-BASED DRAG WITH LIVE REORDER PREVIEW ────────
-  tabsBar.addEventListener('pointerdown', e => {
-    const handle = e.target.closest('.tab-drag-handle');
-    if (!handle) return;
-    const tab = handle.closest('.tab[draggable="true"]');
+  tabsBar.addEventListener('dragstart', e => {
+    const tab = e.target.closest('.tab[draggable="true"]');
     if (!tab) return;
+    dragSrc = tab;
+    tab.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
 
+  tabsBar.addEventListener('dragend', e => {
+    const tab = e.target.closest('.tab[draggable="true"]');
+    if (!tab) return;
+    tab.classList.remove('dragging');
+    getDraggableTabs().forEach(t => t.classList.remove('drag-over'));
+    dragSrc = null;
+  });
+
+  tabsBar.addEventListener('dragover', e => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const tab = e.target.closest('.tab[draggable="true"]');
+    if (!tab || tab === dragSrc) return;
+    getDraggableTabs().forEach(t => t.classList.remove('drag-over'));
+    tab.classList.add('drag-over');
+  });
 
-    const tabs    = getDraggableTabs();
-    const srcIdx  = tabs.indexOf(tab);
-    const tabRect = tab.getBoundingClientRect();
-    const offsetX = e.clientX - tabRect.left;
-    const offsetY = e.clientY - tabRect.top;
+  tabsBar.addEventListener('drop', e => {
+    e.preventDefault();
+    const target = e.target.closest('.tab[draggable="true"]');
+    if (!target || target === dragSrc || !dragSrc) return;
 
-    // Capturar o pointer para tracking contínuo e suave
-    handle.setPointerCapture(e.pointerId);
+    const tabs = getDraggableTabs();
+    const srcIdx = tabs.indexOf(dragSrc);
+    const tgtIdx = tabs.indexOf(target);
 
-    // Cachear rects ANTES de qualquer transform/animação
-    const cachedRects = tabs.map(t => t.getBoundingClientRect());
-
-    // Clone flutuante
-    const clone = tab.cloneNode(true);
-    clone.classList.add('tab-drag-clone');
-    clone.style.width  = tabRect.width  + 'px';
-    clone.style.height = tabRect.height + 'px';
-    clone.style.left   = tabRect.left   + 'px';
-    clone.style.top    = tabRect.top    + 'px';
-    document.body.appendChild(clone);
-
-    tab.classList.add('tab-dragging-placeholder');
-
-    let insertIdx = srcIdx;
-
-    // Calcula índice de inserção contando quantas tabs (exceto a arrastada)
-    // têm seu centro original à esquerda do cursor
-    function calcInsertIdx(cursorX) {
-      let count = 0;
-      tabs.forEach((t, i) => {
-        if (t === tab) return;
-        const center = cachedRects[i].left + cachedRects[i].width / 2;
-        if (cursorX > center) count++;
-      });
-      return count;
+    // Insert before or after based on position
+    if (srcIdx < tgtIdx) {
+      target.after(dragSrc);
+    } else {
+      target.before(dragSrc);
     }
 
-    function applyShifts(newIdx) {
-      tabs.forEach((t, i) => {
-        if (t === tab) return;
-        let shift = 0;
-        if (newIdx > srcIdx && i > srcIdx && i <= newIdx) shift = -tabRect.width;
-        if (newIdx < srcIdx && i >= newIdx && i < srcIdx) shift =  tabRect.width;
-        t.style.transform = shift ? `translateX(${shift}px)` : '';
-      });
-    }
-
-    function onMove(e) {
-      clone.style.left = (e.clientX - offsetX) + 'px';
-      clone.style.top  = (e.clientY - offsetY) + 'px';
-
-      const newIdx = calcInsertIdx(e.clientX);
-      if (newIdx !== insertIdx) {
-        insertIdx = newIdx;
-        applyShifts(insertIdx);
-      }
-    }
-
-    function onUp() {
-      handle.releasePointerCapture(e.pointerId);
-      document.removeEventListener('pointermove', onMove);
-      document.removeEventListener('pointerup',   onUp);
-
-      // Resetar transforms sem transição (evita animação de retorno)
-      tabs.forEach(t => { t.classList.add('tab-no-transition'); t.style.transform = ''; });
-      tabsBar.getBoundingClientRect(); // forçar reflow
-      tabs.forEach(t => t.classList.remove('tab-no-transition'));
-
-      clone.remove();
-      tab.classList.remove('tab-dragging-placeholder');
-
-      // Reordenar DOM na posição calculada
-      if (insertIdx !== srcIdx) {
-        const allTabs = getDraggableTabs();
-        const ref = allTabs[insertIdx];
-        if (ref) {
-          srcIdx < insertIdx ? ref.after(tab) : ref.before(tab);
-        }
-      }
-    }
-
-    document.addEventListener('pointermove', onMove);
-    document.addEventListener('pointerup',   onUp);
+    getDraggableTabs().forEach(t => t.classList.remove('drag-over'));
   });
 
   // ─── TAB SELECTION ────────────────────────────────────────
@@ -2608,7 +3010,9 @@
 
   // ─── SUPABASE — CONTATOS ──────────────────────────────────
   (function() {
-    const db = window.__sbClient;
+    const SUPABASE_URL = 'https://deeklhefjxldkweqjtsa.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlZWtsaGVmanhsZGt3ZXFqdHNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5Mzc5NjcsImV4cCI6MjA2NzUxMzk2N30.9oxYKZHfRNjbXJzQ17POORk_5Z12DDdkPUqAbeIdMcQ';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
     const tbody = document.getElementById('contacts-tbody');
     const totalEl = document.getElementById('total-count');
@@ -2649,30 +3053,14 @@
     }
 
     const STATUS_OPTIONS = [
-      { value: 'Visitante',              icon: '<path d="M20.888 11.544C19.198 8.237 15.842 6 12 6C8.159 6 4.803 8.238 3.112 11.544C3.038 11.689 3 11.843 3 12C3 12.157 3.038 12.311 3.112 12.456C4.803 15.763 8.159 18 12 18C15.841 18 19.197 15.762 20.888 12.456C20.962 12.311 21 12.157 21 12C21 11.843 20.962 11.689 20.888 11.544ZM12 16.5C11.11 16.5 10.24 16.236 9.5 15.742C8.76 15.247 8.183 14.543 7.843 13.721C7.502 12.9 7.413 11.995 7.587 11.121C7.761 10.249 8.19 9.449 8.818 8.818C9.449 8.188 10.249 7.759 11.121 7.585C11.995 7.411 12.9 7.502 13.721 7.842C14.543 8.183 15.247 8.76 15.742 9.5C16.236 10.24 16.5 11.11 16.5 12C16.501 12.591 16.384 13.176 16.156 13.722C15.927 14.268 15.592 14.762 15.171 15.178C14.748 15.601 14.253 15.937 13.707 16.165C13.162 16.393 12.577 16.51 11.986 16.5H12ZM12 9C11.727 9.004 11.455 9.044 11.192 9.118C11.409 9.406 11.512 9.762 11.485 10.121C11.458 10.479 11.303 10.815 11.048 11.067C10.795 11.319 10.459 11.473 10.101 11.5C9.742 11.528 9.386 11.425 9.098 11.208C8.933 11.812 8.963 12.453 9.185 13.039C9.408 13.625 9.811 14.127 10.338 14.471C10.865 14.815 11.487 14.984 12.117 14.954C12.747 14.926 13.351 14.699 13.844 14.308C14.338 13.917 14.696 13.381 14.867 12.776C15.038 12.172 15.013 11.529 14.796 10.94C14.579 10.352 14.181 9.844 13.658 9.491C13.136 9.139 12.515 8.961 11.884 9H12Z" fill="currentColor"/>' },
-      { value: 'Lead',                   icon: '<path d="M12 12C14.525 12 16.571 9.985 16.571 7.5C16.571 5.015 14.525 3 12 3C9.475 3 7.429 5.015 7.429 7.5C7.429 9.985 9.475 12 12 12ZM15.2 13.125H14.604C13.861 13.483 13.028 13.688 12 13.688C10.972 13.688 10.143 13.483 9.396 13.125H8.8C6.15 13.125 4 15.241 4 17.85V19.313C4 20.243 4.768 21 5.714 21H18.286C19.232 21 20 20.243 20 19.313V17.85C20 15.241 17.85 13.125 15.2 13.125Z" fill="currentColor"/>' },
-      { value: 'Lead qualificado - MQL', icon: '<path d="M6.833 9.713C7.01 9.713 7.179 9.78 7.304 9.907C7.43 10.033 7.5 10.202 7.5 10.379V17.629C7.5 17.806 7.43 17.975 7.304 18.1C7.179 18.226 7.01 18.296 6.833 18.296H4.667C4.49 18.296 4.32 18.226 4.195 18.1C4.07 17.975 4 17.806 4 17.629V10.379C4 10.202 4.07 10.033 4.195 9.907C4.32 9.781 4.49 9.712 4.667 9.712L6.833 9.713ZM12.443 4.011C13.092 3.922 13.922 4.323 14.314 5.722C14.455 6.715 14.336 7.727 13.968 8.66C13.96 8.684 13.957 8.711 13.961 8.737C13.965 8.763 13.977 8.789 13.992 8.81C14.007 8.831 14.027 8.848 14.05 8.86C14.074 8.872 14.1 8.879 14.126 8.879H18.333C18.552 8.879 18.769 8.924 18.971 9.005C19.173 9.089 19.357 9.212 19.511 9.367C19.666 9.522 19.789 9.705 19.873 9.908C19.957 10.109 20 10.326 20 10.545C20 10.84 19.921 11.13 19.772 11.386C19.623 11.641 19.41 11.852 19.152 11.998C19.248 12.174 19.307 12.367 19.327 12.566C19.346 12.766 19.325 12.967 19.265 13.158C19.206 13.349 19.108 13.527 18.98 13.679C18.85 13.832 18.691 13.959 18.512 14.05C18.697 14.404 18.725 14.813 18.59 15.187C18.455 15.561 18.172 15.871 17.846 16.05C17.947 16.256 18 16.483 18 16.713C18 17.147 17.805 17.879 16.5 17.879H12.167C11.244 17.884 10.326 17.779 9.428 17.566C9.225 17.522 9.007 17.478 8.769 17.433C8.693 17.418 8.625 17.376 8.576 17.317C8.527 17.257 8.5 17.182 8.5 17.104V10.36C8.5 10.307 8.513 10.254 8.538 10.206C8.563 10.157 8.599 10.117 8.643 10.086C9.914 9.209 11.333 7.209 11.333 5.378C11.32 5.054 11.426 4.737 11.63 4.487C11.834 4.236 12.124 4.066 12.443 4.011ZM5.999 15.045C5.902 15.045 5.807 15.075 5.727 15.13C5.64 15.185 5.576 15.263 5.538 15.354C5.5 15.446 5.491 15.546 5.512 15.643C5.532 15.74 5.581 15.829 5.652 15.899C5.722 15.969 5.811 16.016 5.908 16.036C6.005 16.056 6.105 16.047 6.197 16.008C6.289 15.97 6.367 15.906 6.422 15.824C6.477 15.741 6.5 15.645 6.5 15.545C6.5 15.412 6.447 15.285 6.353 15.191C6.259 15.097 6.132 15.045 5.999 15.045Z" fill="currentColor"/>' },
-      { value: 'Lead qualificado - SQL', icon: '<path d="M11.141 4.526L9.188 8.433L4.819 9.062C4.036 9.173 3.722 10.127 4.29 10.673L7.451 13.712L6.703 18.006C6.569 18.782 7.397 19.363 8.091 18.001L12 15.973L15.909 18.001C16.603 18.366 17.431 17.782 17.297 17.006L16.549 13.712L19.71 10.673C20.278 10.127 19.964 9.173 19.181 9.062L14.812 8.433L12.859 4.526C12.508 3.825 11.494 3.816 11.141 4.526Z" fill="currentColor"/>' },
-      { value: 'Oportunidade',           icon: '<path d="M15.639 4C14.826 4.759 14.093 5.547 13.443 6.343C12.378 4.876 11.058 3.388 9.563 2C5.724 5.561 3 10.202 3 13C3 17.971 6.917 22 11.75 22C16.583 22 20.5 17.971 20.5 13C20.5 10.919 18.47 6.627 15.639 4ZM14.879 17.307C14.032 17.899 12.989 18.25 11.861 18.25C9.043 18.25 6.75 16.385 6.75 13.357C6.75 11.849 7.7 10.52 9.593 8.25C9.864 8.562 13.454 13.146 13.454 13.146L15.744 10.534C15.906 10.801 16.053 11.063 16.184 11.314C17.253 13.352 16.802 15.959 14.879 17.307Z" fill="currentColor"/>' },
-      { value: 'Cliente',                icon: '<path d="M6.375 3.25H16.5C17.731 3.25 18.75 4.269 18.75 5.5V18.5C18.75 19.766 17.731 20.75 16.5 20.75H6.375C5.109 20.75 4.125 19.766 4.125 18.5V5.5C4.125 4.269 5.109 3.25 6.375 3.25ZM10.313 13.375C8.731 13.375 7.5 14.641 7.5 16.188C7.5 16.504 7.746 16.75 8.063 16.75H14.813C15.094 16.75 15.375 16.504 15.375 16.188C15.375 14.641 14.109 13.375 12.563 13.375H10.313ZM9.188 10C9.188 10.809 9.609 11.547 10.313 11.969C10.981 12.356 11.856 12.356 12.563 11.969C13.231 11.547 13.688 10.809 13.688 10C13.688 9.227 13.231 8.488 12.563 8.066C11.856 7.68 10.981 7.68 10.313 8.066C9.609 8.488 9.188 9.227 9.188 10ZM21 6.063V8.313C21 8.629 20.719 8.875 20.438 8.875C20.121 8.875 19.875 8.629 19.875 8.313V6.063C19.875 5.781 20.121 5.5 20.438 5.5C20.719 5.5 21 5.781 21 6.063ZM20.438 10C20.719 10 21 10.281 21 10.563V12.813C21 13.129 20.719 13.375 20.438 13.375C20.121 13.375 19.875 13.129 19.875 12.813V10.563C19.875 10.281 20.121 10 20.438 10ZM21 15.063V17.313C21 17.629 20.719 17.875 20.438 17.875C20.121 17.875 19.875 17.629 19.875 17.313V15.063C19.875 14.781 20.121 14.5 20.438 14.5C20.719 14.5 21 14.781 21 15.063Z" fill="currentColor"/>' },
-      { value: 'Cliente promotor',       icon: '<path d="M19.875 4.375V9.578C20.508 9.894 21 10.703 21 11.688C21 12.672 20.508 13.516 19.875 13.832V19C19.875 19.457 19.594 19.879 19.172 20.055C18.75 20.23 18.258 20.125 17.941 19.809L16.395 18.262C14.707 16.574 12.422 15.625 10.031 15.625H9.75V20.125C9.75 20.758 9.223 21.25 8.625 21.25H6.375C5.742 21.25 5.25 20.758 5.25 20.125V15.625C3.984 15.625 3 14.641 3 13.375V10C3 8.769 3.984 7.75 5.25 7.75H8.625H9.75H10.031C12.422 7.75 14.707 6.801 16.395 5.113L17.941 3.602C18.258 3.285 18.75 3.18 19.172 3.355C19.594 3.531 19.875 4.023 19.875 4.375ZM17.625 7.082C15.551 8.98 12.844 10 10.031 10H9.75V13.375H10.031C12.844 13.375 15.551 14.43 17.625 16.328V11.688V7.082Z" fill="currentColor"/>' },
+      { value: 'Visitante',              icon: '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>' },
+      { value: 'Lead',                   icon: '<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>' },
+      { value: 'Lead qualificado - MQL', icon: '<path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>' },
+      { value: 'Lead qualificado - SQL', icon: '<path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>' },
+      { value: 'Oportunidade',           icon: '<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/>' },
+      { value: 'Cliente',                icon: '<path d="M11 13.5v8H3v-8h8zm2 0h8v8h-8v-8zM11 3.5v8H3v-8h8zm10 0v8h-8v-8h8z"/>' },
+      { value: 'Cliente promotor',       icon: '<path d="M18 11v2h4v-2h-4zm-2 6.61c.96.71 2.21 1.65 3.2 2.39.4-.53.8-1.07 1.2-1.6-.99-.74-2.24-1.68-3.2-2.4-.4.54-.8 1.08-1.2 1.61zM20.4 5.6c-.4-.53-.8-1.07-1.2-1.6-.99.74-2.24 1.68-3.2 2.4.4.53.8 1.07 1.2 1.6.96-.72 2.21-1.65 3.2-2.4zM4 9c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h1v4h2v-4h1l5 3V6L8 9H4zm11.5 3c0-1.33-.58-2.53-1.5-3.35v6.69c.92-.81 1.5-2.01 1.5-3.34z"/>' },
     ];
-
-    function formatPhone(raw) {
-      if (!raw) return '';
-      const digits = raw.replace(/\D/g, '');
-      if (digits.startsWith('55') && digits.length >= 12) {
-        const local = digits.slice(2);
-        const ddd   = local.slice(0, 2);
-        const num   = local.slice(2);
-        if (num.length === 9) return `+55 (${ddd}) ${num[0]} ${num.slice(1,5)}-${num.slice(5)}`;
-        if (num.length === 8) return `+55 (${ddd}) ${num.slice(0,4)}-${num.slice(4)}`;
-        return `+55 (${ddd}) ${num}`;
-      }
-      if (digits.length === 11) return `(${digits.slice(0,2)}) ${digits[2]} ${digits.slice(3,7)}-${digits.slice(7)}`;
-      if (digits.length === 10) return `(${digits.slice(0,2)}) ${digits.slice(2,6)}-${digits.slice(6)}`;
-      return raw;
-    }
 
     function statusIcon(value) {
       const opt = STATUS_OPTIONS.find(o => o.value === value) || STATUS_OPTIONS[1];
@@ -2685,27 +3073,20 @@
 
     function adjustTableWidth() {
       const table = document.querySelector('table');
-      if (!table) return;
-      table.style.width = '100%';
+      const wrapper = document.querySelector('.table-wrapper');
+      if (!table || !wrapper) return;
+      const visible = window.__tableColumns.filter(c => c.visible);
+      // fixed cols: checkbox (44px) + avatar (60px) + actions (52px) = 156px
+      const fixedPx = 156;
+      const dataCols = visible.filter(c => c.key !== 'avatar').length;
+      const neededPx = fixedPx + dataCols * COL_MIN_PX;
+      const containerPx = wrapper.offsetWidth;
+      if (neededPx > containerPx) {
+        table.style.width = neededPx + 'px';
+      } else {
+        table.style.width = '100%';
+      }
     }
-
-    // Larguras fixas generosas por coluna; email sem entrada → absorve o espaço restante
-    const COL_WIDTHS = {
-      nome:            '200px',
-      telefone:        '210px',
-      empresa:         '185px',
-      status:          '230px',
-      cpf:             '145px',
-      rg:              '130px',
-      data_nascimento: '155px',
-      cep:             '115px',
-      rua:             '165px',
-      complemento:     '145px',
-      bairro:          '135px',
-      cidade:          '135px',
-      estado:          '105px',
-      pais:            '125px',
-    };
 
     function renderThead() {
       const tr = document.querySelector('table thead tr');
@@ -2722,12 +3103,7 @@
                         col.key === 'empresa' ? 'EMPRESA' :
                         col.key === 'status' ? 'STATUS' :
                         col.label.toUpperCase();
-          if (col.key === 'email') {
-            html += `<th class="col-email"><div class="th-inner">${label}<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></th>`;
-          } else {
-            const w = COL_WIDTHS[col.key] || '140px';
-            html += `<th style="width:${w}"><div class="th-inner">${label}<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></th>`;
-          }
+          html += `<th><div class="th-inner">${label}<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></th>`;
         }
       }
       html += '<th></th>';
@@ -2754,11 +3130,11 @@
             const emailArr = Array.isArray(row.emails) && row.emails.length ? row.emails : (row.email ? [row.email] : []);
             const primaryEmail = emailArr[0] || '—';
             const extraEmails = emailArr.length > 1 ? emailArr.length - 1 : 0;
-            cells += `<td class="col-email"><div class="cell-text"><span class="cell-plain cell-text-main">${primaryEmail}</span>${extraEmails ? `<span class="cell-text-sub">+${extraEmails} e-mail${extraEmails > 1 ? 's' : ''}</span>` : ''}</div></td>`; break;
+            cells += `<td><div class="cell-text"><span class="cell-plain cell-text-main">${primaryEmail}</span>${extraEmails ? `<span class="cell-text-sub">+${extraEmails} e-mail${extraEmails > 1 ? 's' : ''}</span>` : ''}</div></td>`; break;
           }
           case 'telefone': {
             const phoneArr = Array.isArray(row.telefones) && row.telefones.length ? row.telefones : (row.telefone ? [row.telefone] : []);
-            const primaryPhone = formatPhone(phoneArr[0]) || '—';
+            const primaryPhone = phoneArr[0] || '—';
             const extraPhones = phoneArr.length > 1 ? phoneArr.length - 1 : 0;
             cells += `<td><div class="cell-text"><span class="cell-plain cell-text-main">${primaryPhone}</span>${extraPhones ? `<span class="cell-text-sub">+${extraPhones} telefone${extraPhones > 1 ? 's' : ''}</span>` : ''}</div></td>`; break;
           }
@@ -2793,7 +3169,7 @@
             cells += `<td><span class="cell-plain">${row.pais || '—'}</span></td>`; break;
         }
       }
-      cells += `<td><button class="actions-btn" data-contact-id="${row.id}"><svg width="20" height="20" viewBox="0 -960 960 960" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm360-80v-560H200v560h360Z" fill="#0077B2"/></svg></button></td>`;
+      cells += `<td><button class="actions-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.3226 9.67742C13.6065 9.67742 14.6452 10.7161 14.6452 12C14.6452 13.2839 13.6065 14.3226 12.3226 14.3226C11.0387 14.3226 10 13.2839 10 12C10 10.7161 11.0387 9.67742 12.3226 9.67742ZM10 6.32258C10 7.60645 11.0387 8.64516 12.3226 8.64516C13.6065 8.64516 14.6452 7.60645 14.6452 6.32258C14.6452 5.03871 13.6065 4 12.3226 4C11.0387 4 10 5.03871 10 6.32258ZM10 17.6774C10 18.9613 11.0387 20 12.3226 20C13.6065 20 14.6452 18.9613 14.6452 17.6774C14.6452 16.3935 13.6065 15.3548 12.3226 15.3548C11.0387 15.3548 10 16.3935 10 17.6774Z" fill="#0077B2"/></svg></button></td>`;
       return `<tr>${cells}</tr>`;
     }
 
@@ -2901,6 +3277,7 @@
     try { window.__tabFilters = JSON.parse(localStorage.getItem('contacts_tab_filters') || '{}'); } catch(e) { window.__tabFilters = {}; }
     window.__tabFilters['1'] = window.__tabFilters['1'] || {};
 
+    loadPage();
     window.__contactsReload = () => { currentPage = 1; loadPage(); };
     window.addEventListener('resize', adjustTableWidth);
 
@@ -2911,22 +3288,12 @@
       if (activeDropdown) { activeDropdown.remove(); activeDropdown = null; }
     }
 
-    function updateDropdownPosition() {
-      if (!activeDropdown || !activeDropdown._anchor) return;
-      const rect = activeDropdown._anchor.getBoundingClientRect();
-      activeDropdown.style.top  = (rect.bottom + 4) + 'px';
-      activeDropdown.style.left = rect.left + 'px';
-    }
-
-    document.querySelector('.table-wrap')?.addEventListener('scroll', updateDropdownPosition);
-    window.addEventListener('scroll', updateDropdownPosition, true);
-
     document.addEventListener('click', e => {
       const btn = e.target.closest('.status-select');
       if (!btn) { closeDropdown(); return; }
 
       e.stopPropagation();
-      if (activeDropdown && activeDropdown._anchor === btn) { closeDropdown(); return; }
+      if (activeDropdown && activeDropdown.parentElement === btn) { closeDropdown(); return; }
       closeDropdown();
 
       const currentStatus = btn.dataset.status;
@@ -2938,13 +3305,8 @@
           <span>${opt.value}</span>
         </div>`).join('');
 
-      document.body.appendChild(dropdown);
+      btn.appendChild(dropdown);
       activeDropdown = dropdown;
-      activeDropdown._anchor = btn;
-
-      const rect = btn.getBoundingClientRect();
-      dropdown.style.top  = (rect.bottom + 4) + 'px';
-      dropdown.style.left = rect.left + 'px';
 
       dropdown.querySelectorAll('.status-dropdown-item').forEach(item => {
         item.addEventListener('click', async e => {
@@ -2981,7 +3343,9 @@
     const form      = document.getElementById('add-contact-form');
     const errorEl   = document.getElementById('drawer-form-error');
 
-    const db = window.__sbClient;
+    const SUPABASE_URL  = 'https://deeklhefjxldkweqjtsa.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlZWtsaGVmanhsZGt3ZXFqdHNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5Mzc5NjcsImV4cCI6MjA2NzUxMzk2N30.9oxYKZHfRNjbXJzQ17POORk_5Z12DDdkPUqAbeIdMcQ';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
     let editContactId = null;
 
@@ -3023,23 +3387,20 @@
     const avatarWrap    = document.getElementById('dc-avatar-wrap');
     const avatarPreview = document.getElementById('dc-avatar-preview');
     const avatarInput   = document.getElementById('dc-avatar-input');
-    const avatarBtn     = document.getElementById('dc-avatar-btn');
 
     function renderDrawerAvatar(nome, imageUrl) {
       if (imageUrl) {
         avatarPreview.innerHTML = `<img src="${imageUrl}" alt="${escHtml(nome||'')}">`;
-      } else if (nome && nome.trim()) {
-        const gi = window.__getInitials || (n => n[0].toUpperCase());
-        const gc = window.__getColor    || (() => '#6c63ff');
-        const initials = gi(nome.trim());
-        const color    = gc(nome.trim());
-        avatarPreview.innerHTML = `<svg viewBox="0 0 72 72" width="72" height="72"><circle cx="36" cy="36" r="36" fill="${color}"/><text x="36" y="46" text-anchor="middle" font-size="26" fill="#fff" font-weight="700" font-family="DM Sans,sans-serif">${initials}</text></svg>`;
       } else {
-        avatarPreview.innerHTML = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.125 19H3.875C2.83945 19 2 18.1605 2 17.125V5.875C2 4.83945 2.83945 4 3.875 4H20.125C21.1605 4 22 4.83945 22 5.875V17.125C22 18.1605 21.1605 19 20.125 19ZM6.375 6.1875C5.16688 6.1875 4.1875 7.16688 4.1875 8.375C4.1875 9.58312 5.16688 10.5625 6.375 10.5625C7.58312 10.5625 8.5625 9.58312 8.5625 8.375C8.5625 7.16688 7.58312 6.1875 6.375 6.1875ZM4.5 16.5H19.5V12.125L16.0814 8.70645C15.8984 8.5234 15.6016 8.5234 15.4185 8.70645L10.125 14L7.95645 11.8314C7.7734 11.6484 7.4766 11.6484 7.29352 11.8314L4.5 14.625V16.5Z" fill="#596B7A"/></svg>`;
+        const gi = window.__getInitials || (n => (n||'?')[0].toUpperCase());
+        const gc = window.__getColor    || (() => '#6c63ff');
+        const initials = gi(nome || '');
+        const color    = gc(nome || '');
+        avatarPreview.innerHTML = `<svg viewBox="0 0 72 72" width="72" height="72"><circle cx="36" cy="36" r="36" fill="${color}"/><text x="36" y="46" text-anchor="middle" font-size="26" fill="#fff" font-weight="700" font-family="DM Sans,sans-serif">${initials}</text></svg>`;
       }
     }
 
-    avatarBtn.addEventListener('click', () => avatarInput.click());
+    avatarWrap.addEventListener('click', () => avatarInput.click());
 
     avatarInput.addEventListener('change', () => {
       const file = avatarInput.files[0];
@@ -3255,7 +3616,6 @@
       // Populate all fields
       setField('dc-nome',         data.nome);
       setField('dc-status',       data.status || 'Lead');
-      setField('dc-cargo',        data.cargo);
       setField('dc-cpf',          data.cpf);
       setField('dc-rg',           data.rg);
       setField('dc-nascimento',   data.data_nascimento);
@@ -3305,20 +3665,13 @@
       if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
     });
 
-    // Delegate clicks on contact name links or actions-btn to open edit drawer
+    // Delegate clicks on contact name links to open edit drawer
     document.addEventListener('click', e => {
       const link = e.target.closest('.contact-name-link');
-      if (link) {
-        e.preventDefault();
-        const contactId = link.dataset.contactId;
-        if (contactId) window.location.href = `../perfil/index.html?id=${contactId}`;
-        return;
-      }
-      const btn = e.target.closest('.actions-btn');
-      if (btn) {
-        const contactId = btn.dataset.contactId;
-        if (contactId) openEdit(contactId);
-      }
+      if (!link) return;
+      e.preventDefault();
+      const contactId = link.dataset.contactId;
+      if (contactId) openEdit(contactId);
     });
 
     saveBtn.addEventListener('click', async () => {
@@ -3365,7 +3718,6 @@
         rede_social_usuario:  socialsList[0]?.usuario || null,
         redes_sociais:        socialsList.length ? socialsList : [],
         status:          document.getElementById('dc-status').value                 || 'Lead',
-        cargo:           document.getElementById('dc-cargo').value.trim()           || null,
         cpf:             document.getElementById('dc-cpf').value.trim()             || null,
         rg:              document.getElementById('dc-rg').value.trim()              || null,
         data_nascimento: document.getElementById('dc-nascimento').value             || null,
@@ -4050,146 +4402,6 @@
     // Init from restored tab state
     syncInput();
   })();
-</script>
-
-<!-- ── LOGIN OVERLAY ───────────────────────────────────── -->
-<div class="login-overlay" id="login-overlay">
-  <div class="login-card">
-    <div class="login-logo">
-      <img src="logo-rd.svg" alt="RD Station" style="height:40px;">
-    </div>
-
-    <div class="login-heading">
-      <h1>Bem-vindo de volta</h1>
-      <p>Entre com suas credenciais para continuar</p>
-    </div>
-
-    <div class="login-form">
-      <div id="login-error" class="login-error"></div>
-
-      <div class="login-field">
-        <label for="login-email">E-mail</label>
-        <div class="login-input-wrap">
-          <input class="login-input" type="email" id="login-email" placeholder="seu@email.com" autocomplete="email">
-        </div>
-      </div>
-
-      <div class="login-field">
-        <label for="login-password">Senha</label>
-        <div class="login-input-wrap">
-          <input class="login-input has-toggle" type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
-          <button class="login-toggle-pw" type="button" id="toggle-pw" tabindex="-1">
-            <svg id="toggle-pw-icon" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <button class="login-btn" id="login-btn">Entrar</button>
-    </div>
-
-    <span class="login-lang">Português (Brasil)</span>
-  </div>
-</div>
-
-<script>
-// ─── SUPABASE AUTH ────────────────────────────────────────
-(function() {
-  const SUPABASE_URL  = 'https://deeklhefjxldkweqjtsa.supabase.co';
-  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlZWtsaGVmanhsZGt3ZXFqdHNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5Mzc5NjcsImV4cCI6MjA2NzUxMzk2N30.9oxYKZHfRNjbXJzQ17POORk_5Z12DDdkPUqAbeIdMcQ';
-
-  // Shared client — used by all modules
-  window.__sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
-  const overlay   = document.getElementById('login-overlay');
-  const emailEl   = document.getElementById('login-email');
-  const pwEl      = document.getElementById('login-password');
-  const loginBtn  = document.getElementById('login-btn');
-  const errorEl   = document.getElementById('login-error');
-  const togglePw  = document.getElementById('toggle-pw');
-  const toggleIcon = document.getElementById('toggle-pw-icon');
-
-  // Show/hide password toggle
-  togglePw.addEventListener('click', () => {
-    const isHidden = pwEl.type === 'password';
-    pwEl.type = isHidden ? 'text' : 'password';
-    toggleIcon.innerHTML = isHidden
-      ? '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>'
-      : '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
-  });
-
-  // Show/hide overlay
-  function showApp() {
-    overlay.classList.add('hidden');
-    if (window.__contactsReload) window.__contactsReload();
-  }
-  function showLogin() { overlay.classList.remove('hidden'); emailEl.focus(); }
-
-  // Update account name in navbar
-  function updateAccountName(user) {
-    const nameEl = document.getElementById('account-name');
-    if (nameEl && user) {
-      const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuário';
-      nameEl.textContent = name;
-    }
-  }
-
-  // Auth state change
-  window.__sbClient.auth.onAuthStateChange((event, session) => {
-    if (session) { updateAccountName(session.user); showApp(); }
-    else { showLogin(); }
-  });
-
-  // Check existing session on load
-  window.__sbClient.auth.getSession().then(({ data: { session } }) => {
-    if (session) { updateAccountName(session.user); showApp(); }
-    else { showLogin(); }
-  });
-
-  // Login form submit
-  async function doLogin() {
-    errorEl.style.display = 'none';
-    const email = emailEl.value.trim();
-    const password = pwEl.value;
-    if (!email || !password) {
-      errorEl.textContent = 'Preencha e-mail e senha.';
-      errorEl.style.display = 'block';
-      return;
-    }
-    loginBtn.disabled = true;
-    loginBtn.textContent = 'Entrando...';
-    const { error } = await window.__sbClient.auth.signInWithPassword({ email, password });
-    loginBtn.disabled = false;
-    loginBtn.textContent = 'Entrar';
-    if (error) {
-      errorEl.textContent = 'E-mail ou senha inválidos.';
-      errorEl.style.display = 'block';
-      pwEl.value = '';
-      pwEl.focus();
-    }
-  }
-
-  loginBtn.addEventListener('click', doLogin);
-  pwEl.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-  emailEl.addEventListener('keydown', e => { if (e.key === 'Enter') pwEl.focus(); });
-
-  // Account menu dropdown
-  const accountMenu = document.getElementById('account-menu');
-  const accountDrop = document.getElementById('account-dropdown');
-  accountMenu.addEventListener('click', e => {
-    // Don't toggle if clicking inside dropdown item
-    if (e.target.closest('#logout-btn')) return;
-    accountDrop.classList.toggle('open');
-  });
-  document.addEventListener('click', e => {
-    if (!accountMenu.contains(e.target)) accountDrop.classList.remove('open');
-  });
-
-  // Logout
-  document.getElementById('logout-btn').addEventListener('click', async () => {
-    accountDrop.classList.remove('open');
-    await window.__sbClient.auth.signOut();
-  });
-})();
 </script>
 </body>
 </html>
